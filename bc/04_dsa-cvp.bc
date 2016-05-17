@@ -1,0 +1,17 @@
+
+define congr(x, y, cj, dj, n){
+
+    return mod((mod(y+cj,n) + mod(dj*x,n)),n);
+}
+
+define cjval(r, s){
+
+    cjtmp=mod((r * invmod(s,nn)),nn);
+    return mod(-cjtmp,nn);
+}
+
+define djval(z, s){
+
+    djtmp=mod(((invmod(s,nn) * mod(z,nn))),nn);
+    return mod(-djtmp,nn);
+}

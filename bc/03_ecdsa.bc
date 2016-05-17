@@ -1,0 +1,120 @@
+# badk(r1, s1, s2, z1, z2, n)
+# getk(r, s, z, d, n)
+# sign(x, k, z, d, n)
+
+define void badk(r1, s1, s2, z1, z2, n){
+
+    kk1 = mod(((z1-z2) * invmod(s1-s2,n)),n);
+    kk2 = mod(((z1-z2) * invmod(s1+s2,n)),n);
+    kk3 = mod(((z1-z2) * invmod(-s1-s2,n)),n);
+    kk4 = mod(((z1-z2) * invmod(-s1+s2,n)),n);
+
+    dd1 = mod(mod((s1*kk1)-z1,n) * invmod(r1,n),n);
+    dd2 = mod(mod((s1*kk2)-z1,n) * invmod(r1,n),n);
+    dd3 = mod(mod((s1*kk3)-z1,n) * invmod(r1,n),n);
+    dd4 = mod(mod((s1*kk4)-z1,n) * invmod(r1,n),n);
+
+    print "\n# K1 : ", kk1, "\n# K2 : ", kk2;
+    print "\n# K3 : ", kk3, "\n# K4 : ", kk4;
+    print "\n\n# D1 : ", dd1, "\n# D2 : ", dd2;
+    print "\n# D3 : ", dd3, "\n# D4 : ", dd4, "\n";
+}
+
+
+define void getk(r, s, z, d, n){
+
+    k = mod((invmod(s,n) * mod((z+(r*d)),n)),n);
+    print "\n# K : ", k, "\n";
+}
+
+define void getz(r, s, k, d, n){
+
+    z = mod((mod(k*s,n) - mod(r*d,n)),n);
+    print "\n# Z : ", z, "\n";
+}
+
+define void getd(r, s, k, z, n){
+
+    d = mod(mod((s*k)-z,n) * invmod(r,n),n);
+    print "\n# D : ", d, "\n";
+}
+
+define void sign(x, k, z, d, n){
+
+    r = mod(x,n);
+
+    print "\n# sign\n# R : ", r;
+    s = mod((invmod(k,n) * mod((z+(r*d)),n)),n);
+
+    print "\n# S : ", s, "\n";
+}
+
+
+define void verify(z, x, y, r, s){
+
+    w = invmod(s,nn);
+    u1 = mod(z * w,nn);
+    u2 = mod(r * w,nn);
+
+    ecmulcurve(u1, ggx, ggy, nn, pp);
+    u1x = tx;
+    u1y = ty;
+
+    ecmulcurve(u2, x, y, nn, pp);
+    u2x = tx;
+    u2y = ty;
+    
+    ecaddcurve(u1x, u1y, u2x, u2y, pp);    
+    print "\n# verify\n# RX : ", rx, "\n# RY : ", ry, "\n"
+
+}
+
+define void recover(z, r, s){
+
+    y[0] = 0;
+    y[1] = 0;
+
+    msg = mod(-z,nn);
+
+    rmn = mod(r,nn);
+    getycurve(r, aa, bb, pp);
+    r1x = rmn;
+    r2x = rmn;
+    r1y = y[0];
+    r2y = y[1];
+    
+    invr = invmod(rmn,nn);
+
+    ecmulcurve(s, r1x, r1y, nn, pp);
+    ptsr1x = tx;
+    ptsr1y = ty;
+
+    ecmulcurve(s, r2x, r2y, nn, pp);
+    ptsr2x = tx;
+    ptsr2y = ty;
+
+    ecmulcurve(msg, ggx, ggy, nn, pp);
+    ptzgx = tx;
+    ptzgy = ty;
+
+    ecaddcurve(ptsr1x, ptsr1y, ptzgx, ptzgy, pp);
+    ptmul1x = rx;
+    ptmul1y = ry;
+
+    ecaddcurve(ptsr2x, ptsr2y, ptzgx, ptzgy, pp);
+    ptmul2x = rx;
+    ptmul2y = ry;
+
+    ecmulcurve(invr, ptmul1x, ptmul1y, nn, pp);
+    rptmul1x = tx;
+    rptmul1y = ty;
+
+    ecmulcurve(invr, ptmul2x, ptmul2y, nn, pp);
+    rptmul2x = tx;
+    rptmul2y = ty;
+
+    print "\n# recover\n# X1 : ", rptmul1x;
+    print "\n# Y1 : ", rptmul1y;
+    print "\n#\n# X2 : ", rptmul2x;
+    print "\n# Y2 : ", rptmul2y, "\n";   
+}

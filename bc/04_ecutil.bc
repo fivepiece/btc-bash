@@ -1,0 +1,27 @@
+
+
+define vanity(startd,pref){
+
+    startx=0;
+    starty=0;
+    thisx=0;
+    thisy=0;
+    count=0;
+
+    startd = mod(startd,nn);
+
+    ecmulcurve(startd,ggx,ggy,nn,pp);
+
+    startx=rx;
+    starty=ry;
+
+    flag=0;
+
+    tmpprefix=prefix;
+    tmprx=rx;
+
+    while (tmpprefix > 0){
+
+	if (tmpprefix
+       
+}

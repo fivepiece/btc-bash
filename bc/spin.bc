@@ -1,0 +1,45 @@
+scale=0;
+
+define round(n){
+
+  n = (n / 2);
+
+  return spin(n);
+}
+
+define nround(n){
+
+  if (n == 1){
+
+    return n;
+  }
+
+  n = (((n * 3) + 1)/2);
+
+  return spin(n);
+}
+
+define spin(n){
+
+#  print n, "\n";
+
+  if ((n % 2) == 0){
+
+    return round(n);
+  } else {
+
+    return nround(n);
+  }
+}
+
+# complaints : arubi\freenode
+# run : `bc spin.bc`
+# spin() accepts a positive integer
+# examples :
+# spin(501)
+# spin(2^256)
+# spin(2^5000+7)
+#
+# disable output by commenting out 'print'
+# and run `time bc spin.bc <<<"spin(2^(2^22)+13)"`
+# (

@@ -1,0 +1,159 @@
+
+
+define ispointcurve(x, y, a, b, p){
+
+    ysq = mod(y^2,p);
+    xcb = mod(x^3,p);
+    ax = mod(a*x,p);
+
+    ans = mod(mod((ysq - xcb - ax - b),p),p);
+    return (ans == 0);
+}
+
+define ispoint(x,y){
+
+    return ispointcurve(x, y, aa, bb, pp);
+}
+
+define void getycurve(x, a, b, p){
+
+    q = (p - 1)/2;
+    z = invmod(2,q);
+    ysq = mod((x^3 + (a*x) + b),p);
+
+    y[0] = powmod(ysq,z,p);
+    y[1] = mod(-y[0],p);
+}
+
+
+define void gety(x){
+
+    y[0] = 0;
+    y[1] = 0;
+
+    getycurve(x, aa, bb, pp);
+
+    print "\n# gety\n# Y1 : ", y[0], "\n# Y2 : ", y[1], "\n";
+}
+
+
+define slope(px, py, qx, qy, p){
+
+    if (qy - py != 0){
+
+        num = mod((qy - py),p);
+        den = invmod((qx - px),p);
+    
+    } else {
+
+	num = mod((3 * px^2 + aa),p);
+	den = invmod((2 * py),p);
+    }
+
+    return (mod((num * den),p));
+}
+
+
+define void ecaddcurve(px, py, qx, qy, p){
+
+    if (!ispoint(px,py) || !ispoint(qx,qy)){
+        
+        if (px == 0 && py == 0){
+
+            rx = qx;
+            ry = qy;
+            return;
+        }
+
+        if (qx == 0 && qy == 0){
+
+            rx = px;
+            ry = py;
+            return;
+        }
+
+        print "\n ### Not a point\n";
+        rx = 0;
+        ry = 0;
+        return;
+    }
+
+    rx = 0;
+    ry = 0;
+
+    if (py != mod(-qy,p)){
+	
+        slp = slope(px,py,qx,qy,p);
+
+        rx = mod((slp^2 - px - qx),p);
+        ry = mod((slp*(px - rx) - py),p);
+    }   
+}
+
+
+define void ecadd(px, py, qx, qy){
+
+    ecaddcurve(px,py,qx,qy,pp);
+
+    print "\n# ecadd\n# X : ", rx, "\n# Y : ", ry, "\n"
+}
+
+
+define void ecmulcurve(d, gx, gy, n, p){
+
+    dtmp = mod(d,n);
+    i = 0;
+    while (dtmp > 0){
+
+	darr[i] = dtmp % 2;	
+	i = i+1;
+	dtmp /= 2;
+    }
+
+    tx = 0;
+    ty = 0;
+    rx = gx;
+    ry = gy;
+
+    for (j=0; j < i; j++){
+
+	if (darr[j] == 1){
+	    
+	    tmpx = rx;
+	    tmpy = ry;
+	    ecaddcurve(rx, ry, tx, ty, pp);
+            tx = rx;
+	    ty = ry;
+	    rx = tmpx;
+	    ry = tmpy;
+	}
+	ecaddcurve(rx, ry, rx, ry, pp);
+    }
+}
+
+
+define void ecmul(d){
+
+    ecmulcurve(d,ggx,ggy,nn,pp);
+
+    print "\n# ecmul\n# X : ", tx, "\n# Y : ", ty, "\n";
+}
+
+define void compresspoint(d){
+
+    auto x, y, xsize;
+
+    ecmulcurve(d,ggx,ggy,nn,pp);
+    
+    x=tx;
+    y=ty;
+
+    if ( y % 2 ){
+
+        print "03";
+    } else {
+
+        print "02";
+    }
+    pad(x,40);
+}

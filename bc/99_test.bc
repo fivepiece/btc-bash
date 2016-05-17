@@ -1,0 +1,10 @@
+
+define testmod(){
+
+    print "testmod()\n"
+
+    print "( 1337 == mod(1337,nn)\n"
+    ( 1337 == mod(1337,nn);
+
+    print
+} 

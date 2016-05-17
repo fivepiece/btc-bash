@@ -1,0 +1,69 @@
+# mod(a,n)
+# invmod(a,n)
+# powmod(b,e,n)
+
+
+define mod(a,n){
+
+    if (-a == n){
+
+        return 0;
+    }
+
+    if (a < 0){
+
+        return ((a % n) + n);
+    }
+
+    return (a % n);
+}
+
+define invmod(a, n){
+
+    if (a == 0){
+        return 0;
+    }
+
+    lm=1;
+    hm=0;
+
+    low=mod(a,n);
+    high=n;
+
+    while (low > 1){
+
+        rr=(high/low);
+        new=(high-low*rr);
+        nm=(hm-lm*rr);
+        high=low;
+        hm=lm;
+        low=new;
+        lm=nm;
+    }
+
+    return mod(lm,n);
+}
+
+
+define powmod(b, e, n){
+
+    ans = 1;
+    b = mod(b,n);
+
+    while (e > 1){
+
+        if (e % 2 == 1){
+
+            ans = mod((ans * b),n);
+        }
+
+        e = (e / 2);
+        b = mod((b * b),n);
+    }
+
+    if (e == 1){
+        ans = mod((ans * b),n);
+    }
+
+        return ans;
+}

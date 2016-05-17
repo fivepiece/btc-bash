@@ -1,0 +1,203 @@
+define wordlen(n){
+
+    auto ans,i;
+    ans=-1;
+    i=-1;
+
+    if ( n == 0 ){
+
+        return 1;
+    }
+
+    while (ans <= 0){
+
+        i=i+1;
+        ans=( (10^i)-(n) );
+    }
+
+    return i;
+}
+
+define void pad(n, len){
+
+    auto i;
+
+    i=wordlen(n);
+
+    while ( len-i >= 20 ){
+
+        print "00000000000000000000000000000000";
+        i=i+20;
+    }
+
+    while ( len-i >= 10 ){
+
+        print "0000000000000000";
+        i=i+10;
+    }
+
+    while ( len-i >= 8 ){
+
+        print "00000000";
+        i=i+8;
+    }
+
+    while ( len-i >= 4 ){
+
+        print "0000";
+        i=i+4;
+    }
+
+    while ( len-i >= 2 ){
+
+        print "00";
+        i=i+2;
+    }
+
+    if ( len > i ){
+
+        print "0";
+    }
+
+    n;
+}
+
+define fpad(n, len){
+
+    return n*10^(len-wordlen(n));
+}
+
+define void deepcopy(from[], size){
+
+    to=0;
+
+    for (i=0; i<size; i++){
+
+        to[i]=from[i];
+    }
+}
+
+define void tobitarr(n){
+
+    bitarr=0;
+    ibit=-1;
+
+    while (n > 0){
+
+        ibit = ibit+1;
+        bitarr[ibit] = (n % 2);
+        n /= 2;
+    }
+}
+
+define xor(a, b){
+
+    if (a > b){
+
+        return xorr(a, b);
+    } else {
+
+        return xorr(b, a);
+    }
+}
+
+define xorr(a, b){
+
+    auto x1, x2, wl1, wl2, noxor, doxor, arr1, arr2;
+
+    x1 = a;
+    x2 = b;
+    wl1 = wordlen(x1);
+    wl2 = wordlen(x2);
+
+    if ( wl1 == wl2 ){
+
+        arr1 = 0;
+        arr2 = 0;
+        i1 = 0;
+        i2 = 0;
+
+        tobitarr(x1);
+        i1=ibit+1;
+        deepcopy(bitarr[],i1);
+
+        for (j=0; j<i1; j++){
+
+            arr1[j]=to[j];
+        }
+/*
+        print "\nx1 : ", x1, "\n";
+        for (j=0; j<i1; j++){
+
+            print arr1[j];
+        }
+*/
+        tobitarr(x2);
+        i2=ibit+1;
+        deepcopy(bitarr[],i1);
+ 
+        for (j=0; j<i2; j++){
+
+            arr2[j]=to[j];
+        }
+/*
+        print "\nx2 : ", x2, "\n";
+        for (j=0; j<i2; j++){
+
+            print arr2[j];
+        }
+
+        print "\n";
+*/
+        ans=0;
+        for (j=0; j<i2; j++){
+
+            ans = (ans + (2^j)*((arr1[j] + arr2[j]) % 2));
+#            print "\nans : ", ans, "  ";
+#            print (arr1[i1-j-1] + arr2[i1-j-1]) % 2;
+        }
+
+        for (j=i2; j<i1; j++){
+
+            ans = (ans + (2^j*arr1[j]));
+        }
+
+#        print "\n";
+        return ans;
+    } else {
+
+        noxor = (x1 / (10^wl2));
+        doxor = (x1 % (10^wl2));
+
+        return ((noxor * (10^wl2) + xor(doxor, x2)));
+    }
+}
+
+define void hmac(knw, key, wsize){
+
+    auto keylen, o_key_pad, i_key_pad, pad1, pad2;
+
+    pad1=5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C;
+    pad2=36363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636;
+
+    keylen = (knw + wordlen(key));
+
+    if ( keylen > wsize ){
+
+        key=hash(knw, key);
+    }
+
+    if ( keylen < wsize ){
+
+        key=fpad(key,wsize-knw);
+    }
+
+    o_key_pad=xor(key,pad1);
+    i_key_pad=xor(key,pad2);
+
+    pad(key,wsize);
+    opad_len=wordlen(o_key_pad);
+    ipad_len=wordlen(i_key_pad);
+    pad(o_key_pad,wsize-opad_len);
+    pad(i_key_pad,wsize-ipad_lan);
+}

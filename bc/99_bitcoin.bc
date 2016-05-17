@@ -1,0 +1,29 @@
+
+define compsize(nsize){
+
+    if (nsize < 10){
+
+	print 0;
+	return nsize;
+    } # leading zero
+
+    if (nsize < FD){
+
+	return nsize;
+    }
+
+    if (nsize <= FFFF){
+
+	return FD0000+nsize;
+    }
+
+    if (nsize <= FFFFFFFF){
+
+	return FE00000000+nsize;
+    }
+
+    if (nsize <= FFFFFFFFFFFFFFFF){
+
+	return FF0000000000000000+nsize;
+    }
+}
