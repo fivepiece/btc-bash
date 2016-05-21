@@ -15,8 +15,9 @@ hex2bin() {
 	i=0;
 	while read -N2 byte
 	do
-		bytearr[${i}]=${byte}
-		i=$(( ${i} + 1))
+#		bytearr[${i}]=${byte}
+#		i=$(( ${i} + 1))
+		bytearr+=( ${byte} )
 	done< <(echo -n ${hexstr})
 
 	bytearr="${bytearr[@]}"
@@ -57,8 +58,21 @@ revbyteorder() {
 		hexstr="${1}"
 	fi
 
-	tmpstr=""
-	for (( i=0; i<${#hexstr}; i+=2 )); do tmpstr=' '"${hexstr:${i}:2}${tmpstr}"; done
-	tmpstr="${tmpstr^^}"
-	printf "${tmpstr// /}"
+	if (( "${#hexstr}" % 2 == 1 ))
+	then
+		hexstr="0${hexstr}"
+	fi
+#	tmpstr=""
+#	for (( i=0; i<${#hexstr}; i+=2 )); do tmpstr=' '"${hexstr:${i}:2}${tmpstr}"; done
+	local -a revstr
+	for (( i=$(( ${#hexstr}-2 )); i>=0; i-- ))
+	do
+		revstr+=( ${hexstr:$(( i*2 )):2} )
+	done
+#	tmpstr="${tmpstr^^}"
+#	printf "${tmpstr// /}"
+
+	revstr=${revstr[@]//$'\n'/}
+	revstr=${revstr^^}
+	printf "${revstr// /}"
 }
