@@ -307,3 +307,42 @@ define void testxor(){
     ( xor(DEAD1337,6042) == DEAD7375 );
 }
 testxor();
+
+
+define void testhmac(){
+
+   auto knw, key, msg;
+
+   print "Testing hmac()\n";
+
+   key = 0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B;
+   knw = 1;
+   hmac(knw,key,blockwsize);
+
+   print "\n";
+   key = 4A656665;
+   knw = 0;
+   hmac(knw,key,blockwsize);
+
+   print "\n";
+   key = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+   knw = 0;
+   hmac(knw,key,blockwsize);
+
+   print "\n";
+   key = 0102030405060708090A0B0C0D0E0F10111213141516171819;
+   knw = 1;
+   hmac(knw,key,blockwsize);
+
+   print "\n";
+   key = 0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C;
+   knw = 1;
+   hmac(knw,key,blockwsize);
+
+   # hash256(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
+   print "\n";
+   key = 45AD4B37C6E2FC0A2CFCC1B5DA524132EC707615C2CAE1DBBC43C97AA521DB81;
+   knw = 0;
+   hmac(knw,key,blockwsize);
+}
+testhmac(); 
