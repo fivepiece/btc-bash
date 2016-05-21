@@ -1,10 +1,309 @@
 
-define testmod(){
+define void testmod(){
 
-    print "testmod()\n"
+    print "Test mod()\n";
 
-    print "( 1337 == mod(1337,nn)\n"
-    ( 1337 == mod(1337,nn);
+#    print "1337 == mod(1337,nn)\n";
+    ( 1337 == mod(1337,nn) );
 
-    print
-} 
+#    print "(nn-1337) == mod(-1337,nn)\n";
+    ( (nn-1337) == mod(-1337,nn) );
+
+#    print "0 == mod(00,nn)\n";
+    ( 0 == mod(0,nn) );
+
+#    print "0 == mod(1337*nn,nn)\n";
+    ( 0 == mod(2*nn,nn) );
+}
+testmod();
+
+
+define void testinvmod(){
+
+    print "Test invmod()\n";
+
+    ( 1 == invmod(1,nn) );
+
+    ( (nn/2) == invmod(nn-2,nn) );
+
+    ( (nn/2) == invmod(-nn-2,nn) );
+
+    ( (nn/2) == invmod(2-nn,nn) - 1 );
+}
+testinvmod();
+
+
+define void testpowmod(){
+
+    print "Test powmod()\n";
+
+    ( powmod(1,1337,nn) == 1 );
+
+    ( powmod(1,-1337,nn) == 1 );
+
+    ( powmod(1337,1,nn) == 1337 );
+
+    ( powmod(-1,1337,nn) == nn -1 );
+
+    if ( nn > 4 ){
+
+        ( powmod(2,2,nn) == 4 );
+
+        ( powmod(-2,2,nn) == 4 );
+    }
+}
+testpowmod();
+
+
+define void testispoint(){
+
+    print "Test ispoint()\n";
+
+    ( ispoint(ggx,ggy) == 1 );
+
+    ( ispoint(ggx,-ggy) == 1 );
+
+    ( ispoint(0,0) == 0 );
+
+    ( ispoint(0,bb) == 0 );
+}
+testispoint();
+
+
+define void testgety(){
+
+    print "Test gety()\n";
+
+    getycurve(ggx, aa, bb, pp);
+    ( y[0] == ggy );
+    ( y[1] == mod(-ggy,pp) );
+
+    getycurve(nn, aa, bb, pp);
+    ( ispoint(nn,y[0]) == 1 );
+    ( ispoint(nn,y[1]) == 1 );
+
+    getycurve(1337, aa, bb, pp);
+    ( ispoint(1337,y[0]) == ispoint(1337,y[1]) );
+}
+testgety();
+
+
+define void testecadd(){
+
+    print "Test ecadd()\n";
+
+    ecaddcurve(ggx,ggy,0,0,pp);
+    ( rx == ggx );
+    ( ry == ggy );
+
+    ecaddcurve(0,0,ggx,ggy,pp);
+    ( rx == ggx );
+    ( ry == ggy );
+
+    ecaddcurve(ggx,ggy,ggx,-ggy,pp);
+    ( rx == 0 );
+    ( ry == 0 );
+
+    ecaddcurve(0,0,0,0,pp);
+    ( rx == 0 );
+    ( ry == 0 );
+}
+testecadd();
+
+
+define void testecmul(){
+
+    auto x1, y1, x2, y2;
+    print "Test ecmul()\n";
+
+    ecmulcurve(1,ggx,ggy,nn,pp);
+    ( tx == ggx );
+    ( ty == ggy );
+
+    ecmulcurve(-1,ggx,ggy,nn,pp);
+    ( tx == ggx );
+    ( ty == mod(-ggy,pp) );
+
+    ecmulcurve(2,ggx,ggy,nn,pp);
+    ecaddcurve(ggx,ggy,ggx,ggy,pp);
+    ( tx == rx );
+    ( ty == ry );
+
+    ecmulcurve(nn,ggx,ggy,nn,pp);
+    ( tx == 0 );
+    ( ty == 0 );
+
+    ecmulcurve(2,ggx,ggy,nn,pp);
+    ecaddcurve(ggx,ggy,tx,ty,pp);
+    x1 = rx;
+    y1 = ry;
+    ecmulcurve(3,ggx,ggy,nn,pp);
+    ( tx == x1 );
+    ( ty == y1 );
+}
+testecmul();
+
+
+define void testsig(){
+
+    auto d,z,k,r,s,x,y;
+
+    print "Test ecdsa operations\n";
+
+    d=1337;
+    z = 100;
+    k = DEADBEEF;
+    ecmulcurve(k,ggx,ggy,nn,pp);
+    r = tx;
+
+    sign(r,k,z,d,nn);
+    s = sval;
+
+    getk(r,s,z,d,nn);
+    ( k == kval );
+
+    getz(r,s,k,d,nn);
+    ( z == zval );
+
+    getd(r,s,k,z,nn);
+    ( d == dval );
+
+    ecmulcurve(d,ggx,ggy,nn,pp);
+    x = tx;
+    y = ty;
+
+    verify(z,x,y,r,s);
+    ( r == rx );
+
+    recover(z,r,s);
+    ( ((x == rptmul1x) && (y == rptmul1y)) || ((x == rptmul2x) && (y == rptmul2y)) );
+}
+testsig();
+
+
+define void testwordlen(){
+
+    print "Test wordlen()\n";
+
+    ( wordlen(0) == 1 );
+
+    ( wordlen(00) == 1 );
+
+    ( wordlen(1) == 1 );
+
+    ( wordlen(A) == 1 );
+
+    ( wordlen(10) == 2);
+
+    ( wordlen(99) == 2);
+
+    ( wordlen(100) == 3);
+
+    ( wordlen(FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) == 40 );
+
+    ( wordlen(10000000000000000000000000000000000000000000000000000000000000000) == 41 );
+}
+testwordlen();
+
+
+define void testdeepcopy(){
+
+    auto arr1;
+
+    print "Testing deepcopy()\n";
+
+    arr1[0] = 0;
+    arr1[1] = 1;
+    arr1[2] = 2;
+    arr1[3] = 3;
+    arr1[4] = 4;
+
+    ( to[3] == 0 );
+
+    deepcopy(arr1[],5);
+
+    ( to[0] == 0 );
+
+    ( to[1] == 1 );
+
+    ( to[2] == 2 );
+
+    ( to[3] == 3 );
+
+    ( to[4] == 4 );
+}
+testdeepcopy();
+
+
+define void testtobitarr(){
+
+    auto bitmap;
+
+    print "Test tobitarr()\n";
+
+    bitmap = 0;
+    tobitarr(bitmap);
+
+    ( bitarr[0] == 0 );
+
+    bitmap = 1;
+    tobitarr(bitmap);
+
+    ( bitarr[0] == 1 );
+
+    bitmap = 1000;
+    tobitarr(bitmap);
+    print bitmap, " == ";
+
+    for (i=0; i<=ibit; i++){
+
+        print bitarr[(ibit-i)];
+    }
+    print "\n";
+
+    bitmap = FFFF;
+    tobitarr(bitmap);
+    print bitmap, " == ";
+
+    for (i=0; i<=ibit; i++){
+
+        print bitarr[(ibit-i)];
+    }
+    print "\n";
+
+    bitmap = CAFE;
+    tobitarr(bitmap);
+    print bitmap, " == ";
+
+    for (i=0; i<=ibit; i++){
+
+        print bitarr[(ibit-i)];
+    }
+    print "\n";
+}
+testtobitarr(); 
+
+
+define void testxor(){
+
+    auto n1, n2;
+
+    print "Test xor()\n";
+
+    ( xor(0,0) == 0 );
+
+    ( xor(0,1) == 1 );
+
+    ( xor(1,0) == 1 );
+
+    ( xor(1,1) == 0 );
+
+    ( xor(FFFF,FFFF) == 0 );
+
+    ( xor(DEAD,6042) == BEEF );
+
+    ( xor(13376042,DEAD) == 1337BEEF );
+
+    ( xor(DEAD1337,6042) == DEAD7375 );
+}
+testxor();

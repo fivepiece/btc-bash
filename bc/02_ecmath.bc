@@ -2,8 +2,8 @@
 
 define ispointcurve(x, y, a, b, p){
 
-    ysq = mod(y^2,p);
-    xcb = mod(x^3,p);
+    ysq = powmod(y,2,p);
+    xcb = powmod(x,3,p);
     ax = mod(a*x,p);
 
     ans = mod(mod((ysq - xcb - ax - b),p),p);
@@ -19,7 +19,7 @@ define void getycurve(x, a, b, p){
 
     q = (p - 1)/2;
     z = invmod(2,q);
-    ysq = mod((x^3 + (a*x) + b),p);
+    ysq = mod((powmod(x,3,p) + (a*x) + b),p);
 
     y[0] = powmod(ysq,z,p);
     y[1] = mod(-y[0],p);

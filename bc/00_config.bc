@@ -13,6 +13,7 @@ define void secp256k1(){
   hh=01;
 
   numwsize=40;
+  blockwsize=80;
 }
 
 
@@ -41,6 +42,19 @@ define void secp192k1(){
   hh=01;
 }
 
+
+define void sethmacpads(){
+
+    if ( blockwsize == 80 ){
+
+        hmacpad1 = 5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C5C;
+        hmacpad2 = 36363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636;
+    }
+}
+
+
 secp256k1();
 # dsaattack();
 # secp192k1();
+
+sethmacpads();

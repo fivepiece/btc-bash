@@ -15,38 +15,38 @@ define void badk(r1, s1, s2, z1, z2, n){
     dd4 = mod(mod((s1*kk4)-z1,n) * invmod(r1,n),n);
 
     print "\n# K1 : ", kk1, "\n# K2 : ", kk2;
-    print "\n# K3 : ", kk3, "\n# K4 : ", kk4;
-    print "\n\n# D1 : ", dd1, "\n# D2 : ", dd2;
+    print "\n# K3 : ", kk3, "\n# K4 : ", kk4, "\n";
+    print "\n# D1 : ", dd1, "\n# D2 : ", dd2;
     print "\n# D3 : ", dd3, "\n# D4 : ", dd4, "\n";
 }
 
 
 define void getk(r, s, z, d, n){
 
-    k = mod((invmod(s,n) * mod((z+(r*d)),n)),n);
-    print "\n# K : ", k, "\n";
+    kval = mod((invmod(s,n) * mod((z+(r*d)),n)),n);
+    print "\n# K : ", kval, "\n";
 }
 
 define void getz(r, s, k, d, n){
 
-    z = mod((mod(k*s,n) - mod(r*d,n)),n);
-    print "\n# Z : ", z, "\n";
+    zval = mod((mod(k*s,n) - mod(r*d,n)),n);
+    print "\n# Z : ", zval, "\n";
 }
 
 define void getd(r, s, k, z, n){
 
-    d = mod(mod((s*k)-z,n) * invmod(r,n),n);
-    print "\n# D : ", d, "\n";
+    dval = mod(mod((s*k)-z,n) * invmod(r,n),n);
+    print "\n# D : ", dval, "\n";
 }
 
 define void sign(x, k, z, d, n){
 
-    r = mod(x,n);
+    rval = mod(x,n);
 
-    print "\n# sign\n# R : ", r;
-    s = mod((invmod(k,n) * mod((z+(r*d)),n)),n);
+    print "\n# sign\n# R : ", rval;
+    sval = mod((invmod(k,n) * mod((z+(rval*d)),n)),n);
 
-    print "\n# S : ", s, "\n";
+    print "\n# S : ", sval, "\n";
 }
 
 
