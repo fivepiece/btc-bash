@@ -1,1 +1,4 @@
 *.swp
+bc/checksig.sh
+bc/collatz.bc
+bc/spin.bc
