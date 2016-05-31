@@ -43,10 +43,11 @@ define void sign(x, k, z, d, n){
 
     rval = mod(x,n);
 
-    print "\n# sign\n# R : ", rval;
+#    print "\n# sign\n# R : ", rval;
     sval = mod((invmod(k,n) * mod((z+(rval*d)),n)),n);
 
-    print "\n# S : ", sval, "\n";
+#    print "\n# S : ", sval, "\n";
+    sval;
 }
 
 

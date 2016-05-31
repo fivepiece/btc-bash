@@ -156,51 +156,51 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 
 	# 3.2.a
 	read h1 < <( sha256 "${msg}" )
-	echo
-	echo "# sighash : ${h1}"
+#	echo
+#	echo "# sighash : ${h1}"
 
 	# 3.2.b
 	read v < <( printf "%0*d" "${vsize}" 0 )
 	v="${v//0/01}"
-	echo "# 3.2.b, v : ${v}"
+#	echo "# 3.2.b, v : ${v}"
 
 	# 3.2.c
 	read k < <( printf "%0*d" "${vsize}" 0 )
 	k="${k//0/00}"
-	echo "# 3.2.c, k : ${k}"
+#	echo "# 3.2.c, k : ${k}"
 
 	# 3.2.d
 	read k < <( hmac "${k}" "${v}00${key}${h1}" )
 	# 3.2.e
 	read v < <( hmac "${k}" "${v}" )
 
-	echo "# 3.2.d, k : ${k}"
-	echo "# 3.2.e, v : ${v}"
+#	echo "# 3.2.d, k : ${k}"
+#	echo "# 3.2.e, v : ${v}"
 
 	# 3.2.f
 	read k < <( hmac "${k}" "${v}01${key}${h1}" )
 	# 3.2.g
 	read v < <( hmac "${k}" "${v}" )
 
-	echo "# 3.2.f, k : ${k}"
-	echo "# 3.2.g, v : ${v}"
+#	echo "# 3.2.f, k : ${k}"
+#	echo "# 3.2.g, v : ${v}"
 
 	# 3.2.h
 	while :
 	do
-		echo "start 3.2.h"
+#		echo "start 3.2.h"
 		# 3.2.h.1
 		t=""
 
 		# 3.2.h.2
 		while (( ${#t} < $((16#${keysize})) ))
 		do
-			echo "start 3.2.h.2"
+#			echo "start 3.2.h.2"
 			read v < <( hmac "${k}" "${v}" )
 			t="${t}${v}"
-			echo "# 3.2.h.2, v : ${v}"
-			echo "# 3.2.h.2, t : ${t}"
-			echo "end   3.2.h.2"
+#			echo "# 3.2.h.2, v : ${v}"
+#			echo "# 3.2.h.2, t : ${t}"
+#			echo "end   3.2.h.2"
 		done
 
 		# 3.2.h.3
@@ -210,13 +210,14 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 		if (( "${foundk}" == 1 ))
 		then
 			bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
-				"print \"\n# K : \", ${t}, \"\n\"; ecmul(${t});"
+				"ecmulcurve(${t},ggx,ggy,nn,pp); print ${t}, \"\n\", tx, \"\n\";"
+#				"print \"\n# K : \", ${t}, \"\n\"; ecmul(${t});"
 			return
 		fi
 
 		read k < <( hmac "${k}" "${v}00" )
-		echo "# 3.2.h.3, k : ${k}"
-		echo "end   3.2.h"
+#		echo "# 3.2.h.3, k : ${k}"
+#		echo "end   3.2.h"
 #		read v < <( hmac "${k}" "${v}" )
 	done
 }

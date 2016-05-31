@@ -5,8 +5,9 @@ source /home/esh/software/git/bitcoin-bash/00_global.sh
 for (( i=1; i<=1; i++ ))
 do
 #	msg=$(printf %0"${i}"d 0)
-	msg="0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+	msg="short sigs are cool"
 	coresig=($(bitcoin-cli signmessage 15FFo2LXWsqURJxqFW6MaWqZKScxcAGVwZ "${msg}"))
+	echo "CORESIG : ${coresig}"
 
 	bitcoin-cli verifymessage 18h36rNEPV1Xa2Lj5zmG6oChsct2sJjvFy "${coresig}" "${msg}"
 
@@ -21,6 +22,7 @@ do
 	msglen="${msglen// /\\x}"
 	echo '${msglen} :' "${msglen}"
 	z_val="$(printf "\\x18Bitcoin Signed Message:""\\x0a""${msglen}""${msg}" | str2bytes | bytes2hexstr | hash256)"
+	echo "Z_VAL :  ${z_val}"
 
 	echo "z1=${z_val}"
 	echo "k1x=${r_val}"
