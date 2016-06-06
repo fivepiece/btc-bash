@@ -210,7 +210,7 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 		if (( "${foundk}" == 1 ))
 		then
 			bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
-				"ecmulcurve(${t},ggx,ggy,nn,pp); print ${t}, \"\n\", tx, \"\n\";"
+				"ecmulcurve(${t},ggx,ggy,nn,pp); print ${t}, \"\n\", tx, \"\n\", ty, \"\n\";"
 #				"print \"\n# K : \", ${t}, \"\n\"; ecmul(${t});"
 			return
 		fi
@@ -220,4 +220,10 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 #		echo "end   3.2.h"
 #		read v < <( hmac "${k}" "${v}" )
 	done
+}
+
+randhex() {
+
+	bytes2hexstr < <(str2bytes -N"${1}" /dev/urandom)
+	echo
 }

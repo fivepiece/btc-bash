@@ -99,6 +99,34 @@ pubhash2addr() {
 	base58enc "${p2pkhVer}${hashhex}${pub256:0:8}"
 }
 
+compresspoint() {
+
+	local -u x="${1}" y="${2}"
+
+	bc 00_config.bc 99_hash.bc 01_math.bc 02_ecmath.bc <<<\
+		"compresspoint(${x},${y});"
+}
+
+uncompresspoint() {
+
+	local -u x="${1}"
+
+	bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
+		"uncompresspoint(${x});"
+}
+
+num2compsize() {
+
+	local -u size="${1}"
+
+	read size < <( bc 99_bitcoin.bc <<<\
+		"x=${size};\
+		obase=16; ibase=16;\
+		compsize(x);" )
+
+	echo -n "${size:0:2}"
+	revbyteorder <<<"${size:2}"
+}
 
 sisaddr() {
 

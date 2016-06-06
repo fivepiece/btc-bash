@@ -104,12 +104,16 @@ schauthsign() {
 
 schauthverify() {
 
-	local -u s="${1}" e="${2}" x="${3}" y="${4}" m="${5}" a="${6}"
+	local -u s="${1}" e="${2}" x="${3}" m="${4}" a="${5}"
+
+	local -au pubkey
+	readarray -t pubkey < <(bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
+		"uncompresspoint(${x});" )
 
 	local -u kx c
 
 	read kx < <(bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
-		"ecmulcurve(${e},${x},${y},pp,nn);\
+		"ecmulcurve(${e},${pubkey[0]},${pubkey[1]},pp,nn);\
 		ex=tx; ey=ty;\
 		ecmulcurve(${s},ggx,ggy,pp,nn);\
 		sx=tx; sy=ty;\
@@ -122,10 +126,3 @@ schauthverify() {
 
 	echo "${kx}"
 }
-
-borrsign() {
-
-	local -au pubkeys="${1}"
-	pubkeys=( ${pubkeys//,/ } )
-}
-

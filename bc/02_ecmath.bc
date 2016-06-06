@@ -2,6 +2,8 @@
 
 define ispointcurve(x, y, a, b, p){
 
+    auto ysq, xcb, ax, ans;
+
     ysq = powmod(y,2,p);
     xcb = powmod(x,3,p);
     ax = mod(a*x,p);
@@ -139,21 +141,59 @@ define void ecmul(d){
     print "\n# ecmul\n# X : ", tx, "\n# Y : ", ty, "\n";
 }
 
-define void compresspoint(d){
+define void compresspoint(x,y){
 
-    auto x, y, xsize;
+    auto xval;
+    xval = x;
 
-    ecmulcurve(d,ggx,ggy,nn,pp);
-    
-    x=tx;
-    y=ty;
+    if ( ispoint(xval,y) ){
 
-    if ( y % 2 ){
+        if ( y % 2 ){
 
-        print "03";
+            print "03";
+        } else {
+
+            print "02";
+        }
     } else {
 
-        print "02";
+        xval = 0;
     }
-    pad(x,40);
+
+    pad(xval,numwsize);
+}
+
+define void uncompresspoint(x){
+
+    auto xval, yeven, yodd, yval;
+    xval = x;
+
+    getycurve((mod(x,10^numwsize)),aa,bb,pp);
+
+    if ( y[0] % 2 ){
+
+        yeven = y[1];
+        yodd = y[0];
+    } else {
+
+        yeven = y[0];
+        yodd = y[1];
+    }
+
+    if ( xval > ( 3*(10^numwsize) ) ){
+
+        xval = ( xval - 3*(10^numwsize) );
+        yval = yodd;
+
+    } else if ( xval > ( 2*(10^numwsize) ) ){
+
+        xval = ( xval - 2*(10^numwsize) );
+        yval = yeven;
+
+    } else {
+
+        xval = 0;
+    }
+
+    xval; yval;
 }

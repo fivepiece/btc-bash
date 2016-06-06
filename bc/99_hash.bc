@@ -21,7 +21,6 @@ define wordlen(n){
 define void pad(n, len){
 
     auto i;
-
     i=wordlen(n);
 
     while ( len-i >= 20 ){
