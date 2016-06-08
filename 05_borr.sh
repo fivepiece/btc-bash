@@ -68,9 +68,6 @@ borrringstart() {
 
 	echo -e "privkeys : ${privarr[@]}, i : ${!privarr[@]}" 1>&2 
 
-#	local -u mhash
-#	read mhash < <( borrgenmessage "${pubkeys}" "${message}" )
-
 	echo "SIGNER BEGIN : ${pubarr[${signers[0]}]}, ${signers[0]}" 1>&2 
 	local -au sig nonce
 	local vhash
@@ -89,6 +86,9 @@ borrringstart() {
 		echo "s     : ${sig[1]}" 1>&2
 		e_values[$(( (${ring}*${#signers[@]})+${j} ))]="${vhash}"
 		s_values[$(( (${ring}*${#signers[@]})+${j} ))]="${sig[1]}"
+#		echo "s_values[$(( (${ring}*${#signers[@]})+${j} ))]=${sig[1]}"
+		echo "----> s_values[$(( (${ring}*${#rings[@]})+${j} ))]=${sig[1]}"
+		echo "----> s_values[(( (${ring}*${#rings[@]})+${j} ))]=${sig[1]}"
 	done
 
 	e0+="${sig[0]}"
@@ -117,24 +117,22 @@ borrringend() {
 	local -au nonce
 	readarray -t nonce < <( sigk "${privarr[${signers[0]}]}" "${mhash}" )
 
-#	local -u mhash
-#	read mhash < <( borrgenmessage "${pubkeys}" "${message}" )
-
-#	local vhash="${e_values[$(( ${ring}*${#signers[@]} ))]}"
 	local -u vhash
 	read vhash < <( borrhash "${mhash}" "${e0}" "${ring}" "0" )
-#	vhash="${e0}"
 	e_values[$(( ${ring}*${#signers[@]} ))]="${vhash}"
 
 	local -au sig
 	readarray -t sig < <( borrcalck "${vhash}" "${pubarr[0]}" "${privarr[0]}" )
 	s_values[$(( ${ring}*${#signers[@]} ))]="${sig[1]}"
+#	echo "s_values[$(( (${ring}*${#signers[@]}) ))]=${sig[1]}"
+	echo "----> s_values[$(( (${ring}*${#rings[@]}) ))]=${sig[1]}"
+	echo "----> s_values[(( (${ring}*${#rings[@]}) ))]=${sig[1]}"
 
 	echo "vhash : ${vhash}" 1>&2
 	echo "K     : ${sig[0]}" 1>&2 
 	echo "s     : ${sig[1]}" 1>&2
 
-	local -i j
+	local -i j=0
 	for (( j=1; j<"${signers[0]}"; j++ ))
 	do
 		read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
@@ -144,6 +142,9 @@ borrringend() {
 		echo "s     : ${sig[1]}" 1>&2
 		e_values[$(( (${ring}*${#signers[@]})+${j} ))]="${vhash}"
 		s_values[$(( (${ring}*${#signers[@]})+${j} ))]="${sig[1]}"
+#		echo "s_values[$(( (${ring}*${#signers[@]})+${j} ))]=${sig[1]}"
+		echo "----> s_values[$(( (${ring}*${#rings[@]})+${j} ))]=${sig[1]}"
+		echo "----> s_values[(( (${ring}*${#rings[@]})+${j} ))]=${sig[1]}"
 	done
 
 	read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
@@ -158,6 +159,9 @@ borrringend() {
 	echo -e "\n\nSIGNER END"
 	e_values[$(( (${ring}*${#signers[@]})+${j} ))]="${vhash}"
 	s_values[$(( (${ring}*${#signers[@]})+${j} ))]="${sig[1]}"
+#	echo "s_values[$(( (${ring}*${#signers[@]})+${j} ))]=${sig[1]}"
+	echo "----> s_values[$(( (${ring}*${#rings[@]})+${j} ))]=${sig[1]}"
+	echo "----> s_values[(( (${ring}*${#rings[@]})+${j} ))]=${sig[1]}"
 }
 
 borrverifyring() {
@@ -170,16 +174,12 @@ borrverifyring() {
 	local -u mhash
 	read mhash < <( borrgenmessage "${pubkeys}" "${message}" )
 
-#	local -u vhash="${e_values[$(( ${ring}*${#signers[@]} ))]}"
-#	local -u vhash="${e0}"
 	local -u vhash
 	read vhash < <( borrhash "${mhash}" "${e0}" "${ring}" "0" )
 	echo "e[$(( ${ring}*${#signers[@]} ))] = ${vhash}"
 
 	local -au sig nonce
 	readarray -t sig < <( borrcalck "${vhash}" "${pubarr[0]}" "${s_values[$(( ${ring}*${#signers[@]} ))]}" )
-#	k_values[$(( ${ring}*${#signers[@]} ))]="${sig[0]}"
-#	k_values+="${sig[0]}"
 	echo "kG[$(( ${ring}*${#signers[@]} ))] = ${sig[0]}"
 
 	local -i j
@@ -188,15 +188,12 @@ borrverifyring() {
 		read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
 		echo "e[$(( (${ring}*${#signers[@]})+${j} ))] = ${vhash}"
 		readarray -t sig < <( borrcalck "${vhash}" "${pubarr[${j}]}" "${s_values[$(( (${ring}*${#signers[@]})+${j} ))]}" )
-#		k_values[$(( (${ring}*${#signers[@]})+${j} ))]="${sig[0]}"
-#		k_values+="${sig[0]}"
 		echo "kG[$(( (${ring}*${#signers[@]})+${j} ))] = ${sig[0]}"
 	done
 
 	echo "j : ${j}"
 
 	k_values+="${sig[0]}"
-#	read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "0" )
 }
 
 borrsign() {
@@ -262,7 +259,6 @@ borrsign() {
 	echo "e_values : ${e_values[@]}"
 	echo "s_values : ${s_values[@]}"
 
-#	local -au k_values
 	local -u k_values=""
 	echo "===== START BORRVERIFYRING ====="
 	for (( i=0; i<"${#rings[@]}"; i++ ))
@@ -277,6 +273,5 @@ borrsign() {
 	read verifier < <( sha256 "${k_values}${mhash}" )
 
 	echo "[[ ${e0} == ${verifier} ]]"
-#	echo "[[ ${e_values[$(( ${ring}*${#signers[@]} ))]} == ${vhash} ]]"
 }
 
