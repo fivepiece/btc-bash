@@ -75,7 +75,7 @@ borrringstart() {
 	read sig[0] < <( compresspoint "${nonce[1]}" "${nonce[2]}" )
 	echo "signer kG value : ${sig[0]}" 1>&2 
 
-	for (( j=$(( ${signers[0]}+1 )); j>0; j=$(( (${j}+1) % ${#pubarr[@]} )) ))
+	for (( j=$(( ${signers[0]}+1 )); j>0 && j<"${#pubarr[@]}"; j=$(( (${j}+1) % ${#pubarr[@]} )) ))
 	do
 		read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
 		readarray -t sig < <( borrcalck "${vhash}" "${pubarr[${j}]}" "${privarr[${j}]}" )
@@ -118,6 +118,7 @@ borrringend() {
 	e_values[$(( ${pointer} ))]="${vhash}"
 
 	local -au sig
+
 	readarray -t sig < <( borrcalck "${vhash}" "${pubarr[0]}" "${privarr[0]}" )
 	s_values[$(( ${pointer} ))]="${sig[1]}"
 
@@ -126,6 +127,7 @@ borrringend() {
 	echo "s_values[$(( ${pointer} ))] = ${sig[1]}"
 
 	local -i j=0
+	(( ${signers[0]} != 0 )) &&\
 	for (( j=1; j<"${signers[0]}"; j++ ))
 	do
 		read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
@@ -136,9 +138,10 @@ borrringend() {
 		echo "e_values[$(( ${pointer}+${j} ))] = ${vhash}"
 		echo "kG value = ${sig[0]}" 1>&2 
 		echo "s_values[$(( ${pointer}+${j} ))] = ${sig[1]}"
-	done
-
+	done &&\
 	read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
+
+	echo "JJJJ = ${j}"
 	echo "mod( ${nonce[0]} - ( ${vhash} * ${privarr[${j}]}),nn);"
 	read sig[1] < <( bc 00_config.bc 99_hash.bc 01_math.bc 02_ecmath.bc <<<\
 		"s=mod( ${nonce[0]} - ( ${vhash} * ${privarr[${j}]}),nn);\
@@ -273,6 +276,7 @@ borrverify() {
 		mapfile -t -n 1 e0 <"${signature_file}" &&\
 		mapfile -t -n 1 -s 1 svals <"${signature_file}"
 	s_values=( ${svals} )
+	echo "s_values = ${s_values[@]} , # = ${#s_values[@]}"
 
 	echo "message : ${message}"
 	echo "generating message from pubkeys[@] || message"
