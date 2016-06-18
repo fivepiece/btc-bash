@@ -41,6 +41,8 @@ define void gety(x){
 
 define slope(px, py, qx, qy, p){
 
+    auto num, den;
+
     if (qy - py != 0){
 
         num = mod((qy - py),p);
@@ -57,6 +59,8 @@ define slope(px, py, qx, qy, p){
 
 
 define void ecaddcurve(px, py, qx, qy, p){
+
+    auto slp;
 
     if (!ispoint(px,py) || !ispoint(qx,qy)){
         
@@ -102,6 +106,8 @@ define void ecadd(px, py, qx, qy){
 
 
 define void ecmulcurve(d, gx, gy, n, p){
+
+    auto dtmp, i, darr[];
 
     dtmp = mod(d,n);
     i = 0;

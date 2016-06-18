@@ -172,6 +172,9 @@ define xorr(a, b){
     }
 }
 
+# knw : number of 0x0 words before the key
+# wsize : key size in words
+
 define void hmac(knw, key, wsize){
 
     auto keylen, o_key_pad, i_key_pad, pad1, pad2;
@@ -183,7 +186,7 @@ define void hmac(knw, key, wsize){
 
     if ( keylen > wsize ){
 
-        key=hash(knw, key);
+        key=hash(knw, key); # hash() does not exist yet.  done in advance.
     }
 
     if ( keylen < wsize ){

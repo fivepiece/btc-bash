@@ -157,16 +157,16 @@ define void testsig(){
     r = tx;
 
     sign(r,k,z,d,nn);
-    s = sval;
+    s = sign(r,k,z,d,nn);
 
     getk(r,s,z,d,nn);
-    ( k == kval );
+    ( k == getk(r,s,z,d,nn) );
 
     getz(r,s,k,d,nn);
-    ( z == zval );
+    ( z == getz(r,s,k,d,nn) );
 
     getd(r,s,k,z,nn);
-    ( d == dval );
+    ( d == getd(r,s,k,z,nn) );
 
     ecmulcurve(d,ggx,ggy,nn,pp);
     x = tx;

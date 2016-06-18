@@ -58,10 +58,21 @@ bitcoinlens() {
 bitcoinvers
 bitcoinlens
 activevers
-source '/home/esh/software/git/bitcoin-bash/01_strings.sh'
-source '/home/esh/software/git/bitcoin-bash/02_hash.sh'
-source '/home/esh/software/git/bitcoin-bash/03_encode.sh'
-source '/home/esh/software/git/bitcoin-bash/04_tx.sh'
-source '/home/esh/software/git/bitcoin-bash/04_schnorr.sh'
-source '/home/esh/software/git/bitcoin-bash/05_borr.sh'
-source '/home/esh/software/git/bitcoin-bash/99_script.sh'
+
+export sources_root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export BC_LINE_LENGTH=0
+export BC_ENV_ARGS="-q\
+ ${sources_root}/bc/00_config.bc\
+ ${sources_root}/bc/99_hash.bc\
+ ${sources_root}/bc/99_bitcoin.bc\
+ ${sources_root}/bc/01_math.bc\
+ ${sources_root}/bc/02_ecmath.bc\
+ ${sources_root}/bc/03_ecdsa.bc"
+
+source "${sources_root}/01_strings.sh"
+source "${sources_root}/02_hash.sh"
+source "${sources_root}/03_encode.sh"
+source "${sources_root}/04_tx.sh"
+source "${sources_root}/04_schnorr.sh"
+source "${sources_root}/05_borr.sh"
+source "${sources_root}/99_script.sh"

@@ -4,6 +4,8 @@
 
 define void badk(r1, s1, s2, z1, z2, n){
 
+    auto kk1, kk2, kk3, kk4, dd1, dd2, dd3, dd4;
+
     kk1 = mod(((z1-z2) * invmod(s1-s2,n)),n);
     kk2 = mod(((z1-z2) * invmod(s1+s2,n)),n);
     kk3 = mod(((z1-z2) * invmod(-s1-s2,n)),n);
@@ -21,37 +23,43 @@ define void badk(r1, s1, s2, z1, z2, n){
 }
 
 
-define void getk(r, s, z, d, n){
+define getk(r, s, z, d, n){
 
-    kval = mod((invmod(s,n) * mod((z+(r*d)),n)),n);
-    print "\n# K : ", kval, "\n";
+#    kval = mod((invmod(s,n) * mod((z+(r*d)),n)),n);
+#    print "\n# K : ", kval, "\n";
+    return mod((invmod(s,n) * mod((z+(r*d)),n)),n);
 }
 
-define void getz(r, s, k, d, n){
+define getz(r, s, k, d, n){
 
-    zval = mod((mod(k*s,n) - mod(r*d,n)),n);
-    print "\n# Z : ", zval, "\n";
+#    zval = mod((mod(k*s,n) - mod(r*d,n)),n);
+#    print "\n# Z : ", zval, "\n";
+    return mod((mod(k*s,n) - mod(r*d,n)),n);
 }
 
-define void getd(r, s, k, z, n){
+define getd(r, s, k, z, n){
 
-    dval = mod(mod((s*k)-z,n) * invmod(r,n),n);
-    print "\n# D : ", dval, "\n";
+#    dval = mod(mod((s*k)-z,n) * invmod(r,n),n);
+#    print "\n# D : ", dval, "\n";
+    return mod(mod((s*k)-z,n) * invmod(r,n),n);
 }
 
-define void sign(x, k, z, d, n){
+define sign(x, k, z, d, n){
 
+    auto rval, sval;
     rval = mod(x,n);
 
 #    print "\n# sign\n# R : ", rval;
     sval = mod((invmod(k,n) * mod((z+(rval*d)),n)),n);
 
 #    print "\n# S : ", sval, "\n";
-    sval;
+    return sval;
 }
 
 
 define void verify(z, x, y, r, s){
+
+    auto w, u1, u2, u1x, u1y, u2x, u2y;
 
     w = invmod(s,nn);
     u1 = mod(z * w,nn);
@@ -71,6 +79,8 @@ define void verify(z, x, y, r, s){
 }
 
 define void recover(z, r, s){
+
+    auto msg, rmn, r1x, r1y, r2x, r2y, invr, ptsr1x, ptsr1y, ptsr2x, ptsr2y, ptzgx, ptzgy, ptmul1x, ptmul1y, ptmul2x, ptmul2y, rptmul1x, rptmul1y, rptmul2x, rptmul2y;
 
     y[0] = 0;
     y[1] = 0;
