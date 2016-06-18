@@ -20,6 +20,8 @@ define mod(a,n){
 
 define invmod(a, n){
 
+    auto lm, hm, low, high, rr, new, nm;
+
     if (a == 0){
         return 0;
     }
@@ -45,7 +47,11 @@ define invmod(a, n){
 }
 
 
-define powmod(b, e, n){
+define powmod(base, exp, n){
+
+    auto ans, b, e;
+    b = base;
+    e = exp;
 
     ans = 1;
     b = mod(b,n);

@@ -141,7 +141,6 @@ borrringend() {
 	done &&\
 	read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
 
-	echo "JJJJ = ${j}"
 	echo "mod( ${nonce[0]} - ( ${vhash} * ${privarr[${j}]}),nn);"
 	read sig[1] < <( bc 00_config.bc 99_hash.bc 01_math.bc 02_ecmath.bc <<<\
 		"s=mod( ${nonce[0]} - ( ${vhash} * ${privarr[${j}]}),nn);\

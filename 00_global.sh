@@ -15,9 +15,9 @@ _codeString=(1 2 3 4 5 6 7 8 9 A B C D E F G H J K \
 
 activevers(){
 
-	privkeyVer="${mprivkeyVer}"
-	p2pkhVer="${mp2pkhVer}"
-	p2shVer="${mp2shVer}"
+	privkeyVer="${tprivkeyVer}"
+	p2pkhVer="${tp2pkhVer}"
+	p2shVer="${tp2shVer}"
 }
 
 

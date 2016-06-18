@@ -10,7 +10,7 @@ script_mofn=( "m" "pubkeys" "n" "CHECKMULTISIG" )                             #4
 script_p2wsh=( "0x00" "0x20" "scripthash" )                                   #10
 script_p2sh=( "HASH160" "0x14" "scripthash" "EQUAL" )                         #200
 
-minspend=876
+minspend=6
 # maxspend=21
 
 getinputs(){
@@ -258,7 +258,7 @@ randspendamnt() {
 
     local amount
     read amount < <( bc <<<"scale=8;\
-	    ( ${minspend} + 0.${RANDOM}${RANDOM:2} );")
+	    (${minspend} + 0.000${RANDOM})/1;")
 
     reducebalance "${amount}"
 
@@ -268,7 +268,7 @@ randspendamnt() {
 reducebalance() {
 
 	read balance < <( bc <<<"scale=8;\
-		${balance} - ${1}") 
+		(${balance} - ${1})/1;") 
 }
 
 mkrandouts() {
@@ -300,7 +300,7 @@ mkrandouts() {
 	    read thisamount < <( randspendamnt )
 	    echo "i : ${i}"
 
-	    echo "thisscript : ${thisscript}"
+	    echo -e "\n\nthisscript : ${thisscript}"
 
 	    case ${thisscript} in
 
@@ -357,7 +357,7 @@ mkrandouts() {
 			    local n
 
 			    pubkeys=()
-			    n="$(( (${RANDOM} % 4) + 1 ))"
+			    n="$(( (${RANDOM} % 4) + 2 ))"
 			    m="$(( (${RANDOM} % ${n}) + 1 ))"
 			    echo "req sigs  : ${m}"
 			    echo "num keys  : ${n}"
@@ -436,38 +436,53 @@ mkrandouts() {
 #    set -e
     create="segnet-tx -create ${thisoutput[@]}"
     read newtx < <( eval ${create} )
+    echo ${newtx}
 
     fund="segnet-cli fundrawtransaction ${newtx} | grep -- \"hex\|fee\""
     
     local -a fundstate
     while [[ "${fundstate[0]}" == "" ]]
     do
-	set +e
+#	set +e
         readarray -t fundstate < <( eval ${fund} 2>&1 )
 	echo "${fundstate[*]}"
 	if [[ "${fundstate[*]}" =~ "Insufficient" ]]
 	then
-		echo "No funds"
-		read
-		# continue
+		read balance < <( segnet-cli getbalance "*" 1 )
+		read minoutputs < <( bc <<<"${balance} / ${minspend}" )
+		if (( ${minoutputs} == 0 ))
+		then
+			echo "no funds"
+			read
+			break
+		fi
+		# read
+		continue
 	fi
 
 	if [[ "${fundstate[*]}" =~ "-32603" ]]
 	then
 		echo "-32603"
+		read unspent < <( segnet-cli listunspent 2 3 | grep amount | grep -v ' 0\.0' -c )
+		if (( ${unspent} == 0 ))
+		then
+			echo "no inputs"
+			read
+			break
+		fi
 		read
-		return
+		# return
 	fi
-	set -e
+#	set -e
     done
-#    readarray -t fundstate < <( eval ${fund} )
+    readarray -t fundstate < <( eval ${fund} )
     ustx="${fundstate[0]#*: \"}"
     ustx="${ustx%*\",}"
     fee="${fundstate[1]#*: }"
     fee="${fee%*,}"
 #    set +e
-    reducebalance "${fee:-0}"
-    set -e
+    reducebalance "${fee:-"0"}"
+#    set -e
     echo "fees .... ${fee} ... left ${balance}"
     echo -e "ustx :\n${ustx}\n"
 
@@ -499,7 +514,9 @@ gentxs() {
         intxs["${prevtxs_in[${i}]%:*}"]="${prevtxs_in[${i}]##*:}"
     done
 
-    read balance < <( segnet-cli getbalance "*" 1 )
+    set -f
+    read balance < <( segnet-cli getbalance \'*\' 1)
+    set +f
     intxslen="${#intxs[@]}"
 }
 
@@ -546,7 +563,7 @@ genoutaddrs() {
 #	return
 
 	read balance < <( segnet-cli getbalance "*" 1 )
-	read unspent < <( segnet-cli listunspent 1 | grep amount | grep -v ' 0\.0' -c )
+	read unspent < <( segnet-cli listunspent 2 | grep amount | grep -v ' 0\.0' -c )
 
 	local -i k
 	declare -i i
@@ -559,7 +576,7 @@ genoutaddrs() {
 		then
 			lastunspent="${unspent}"
 			lastbalance="${balance}"
-			read balance < <( segnet-cli getbalance "*" 1 )
+			read balance < <( segnet-cli getbalance \'*\' 1 )
 			read unspent < <( segnet-cli listunspent 1 | grep amount | grep -v ' 0\.0' -c )
 			if (( "${lastunspent}" == "${unspent}" )) || \
 				[[ "${lastbalance}" == "${balance}" ]]
@@ -569,6 +586,6 @@ genoutaddrs() {
 		fi
 		mkrandouts "${1}" "${2}"
 		k=$(( ${k}+1 ))
-#		break
+		break
 	done
 }
