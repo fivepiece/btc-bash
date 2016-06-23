@@ -2,6 +2,7 @@
 
 sha256() {
 
+	local -u hexstr
 	if [[ "${1}" == "" ]]
 	then
 	
@@ -11,6 +12,7 @@ sha256() {
 		hexstr="${1}"
 	fi
 
+	local -u digest
 	read digest < <( hex2bin "${hexstr^^}" | sha256sum -b )
 	digest="${digest% *-}"
 
@@ -19,6 +21,7 @@ sha256() {
 
 ripemd160() {
 
+	local -u hexstr
 	if [[ "${1}" == "" ]]
 	then
 	
@@ -28,6 +31,7 @@ ripemd160() {
 		hexstr="${1}"
 	fi
 
+	local -u digest
 	read digest < <( hex2bin "${hexstr^^}" | openssl rmd160 -r )
 	digest="${digest% *}"
 
@@ -36,6 +40,7 @@ ripemd160() {
 
 sha512() {
 
+	local -u hexstr
 	if [[ "${1}" == "" ]]
 	then
 	
@@ -45,6 +50,7 @@ sha512() {
 		hexstr="${1}"
 	fi
 
+	local -u digest
 	read digest < <( hex2bin "${hexstr^^}" | sha512sum -b )
 	digest="${digest% *-}"
 
@@ -53,6 +59,7 @@ sha512() {
 
 hash256() {
 
+	local -u hash0 hash1 hash2
 	if [[ "${1}" == "" ]]
 	then
 	
@@ -70,6 +77,7 @@ hash256() {
 
 hash160() {
 
+	local -u hash0 hash1 hash2
 	if [[ "${1}" == "" ]]
 	then
 	
@@ -87,6 +95,7 @@ hash160() {
 
 hash512() {
 
+	local -u hash0 hash1 hash2
 	if [[ "${1}" == "" ]]
 	then
 	
@@ -104,6 +113,7 @@ hash512() {
 
 hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 
+	local -u key text
 	key="${1^^}"
 	text="${2^^}"
 
@@ -113,19 +123,20 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 		read key < <( sha256 "${key}" )
 	fi
 
+	local -u knw
 	# number of null words to consider at the start of the key.
 	# the key "1" will become "100..00", and the key "00..001"
 	# will be treated as '0x01'
 	#
 	knw="${key%%${key/*(0)/}}"
 
+	local -au pads
 	# steps (1) (2) (5)
 	# pads[0] = key
 	# pads[1] = opad
 	# pads[2] = ipad
 	#
-	readarray -t pads < <( bc 00_config.bc 99_hash.bc <<<\
-			"hmac(${#knw}, ${key}, ${hashblock});" )
+	readarray -t pads < <( bc <<<"hmac(${#knw}, ${key}, ${hashblock});" )
 
 	# step (3)
 	text="${pads[2]}${text}"
@@ -144,16 +155,17 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 
 sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 
+	local -u key msg
 	key="${1^^}"
 	msg="${2^^}"
 
 	# keys shorter than the keysize are appended 0x00's
 	if (( ${#key} < $((16#${keysize})) ))
 	then
-		read key < <( bc 00_config.bc 99_hash.bc <<<\
-				"pad(${key},${keysize});" )
+		read key < <( bc <<<"pad(${key},${keysize});" )
 	fi
 
+	local -u h1 v k t foundk
 	# 3.2.a
 	read h1 < <( sha256 "${msg}" )
 #	echo
@@ -204,13 +216,11 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 		done
 
 		# 3.2.h.3
-		read foundk < <( bc 00_config.bc <<<\
-				"(1 < ${t}) && (${t} < nn);" )
+		read foundk < <( bc <<<"(1 < ${t}) && (${t} < nn);" )
 
 		if (( "${foundk}" == 1 ))
 		then
-			bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
-				"ecmulcurve(${t},ggx,ggy,nn,pp); print ${t}, \"\n\", tx, \"\n\", ty, \"\n\";"
+			bc <<<"ecmulcurve(${t},ggx,ggy,nn,pp); print ${t}, \"\n\", tx, \"\n\", ty, \"\n\";"
 #				"print \"\n# K : \", ${t}, \"\n\"; ecmul(${t});"
 			return
 		fi

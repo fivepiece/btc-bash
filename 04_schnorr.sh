@@ -14,18 +14,18 @@ schsign() {
 	unset kr
 
 	# if needed, pad r with null words so |r| = 32 bytes
-	read r < <( bc 00_config.bc 99_hash.bc <<<"pad(${r},numwsize);" )
+	read r < <( bc <<<"pad(${r},numwsize);" )
 
 	# c = commitment = sha256(m||r)
 	local -u c
 	read c < <( sha256 "${m}${r}" )
 
 	# if needed, discard null words, making c an integer
-	read c < <( bc 00_config.bc <<<"c=${c}; c;" )
+	read c < <( bc <<<"c=${c}; c;" )
 
 	# s = signature = k - c*d mod n
 	local -u s
-	read s < <( bc 00_config.bc 01_math.bc <<<"mod(${k} - (${c} * ${d}),nn);" )
+	read s < <( bc <<<"mod(${k} - (${c} * ${d}),nn);" )
 
 	echo ${c} ${s}
 }
@@ -38,7 +38,7 @@ schverify() {
 	local -i cond
 
 	# condition: ( 0 <= c < |sha256| ) && ( 1 <= s < n )
-	read cond < <( bc 00_config.bc <<<\
+	read cond < <( bc <<<\
 		"( (0 <= ${c}) && (${c} < (2^100)) ) && ( (1 <= ${s}) && (${s} < nn) )" )
 
 	if (( ! ${cond} ))
@@ -52,7 +52,7 @@ schverify() {
 	# (s_x,s_y) = sG
 	# (c_x,c_y) = cP, P = (x,y) => cP = c*dG
 	# kG = sG + cP
-	readarray -t q < <( bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
+	readarray -t q < <( bc <<<\
 		"ecmulcurve(${s},ggx,ggy,nn,pp);\
 		sgx = tx; sgy = ty;\
 		ecmulcurve(${c},${x},${y},nn,pp);\
@@ -70,9 +70,9 @@ schverify() {
 	# q[0] == kG_x == r
 	# sha256(m||r) = c ==? v
 	local -u v
-	read v < <( bc 00_config.bc 99_hash.bc <<<"pad(${q[0]},numwsize);" )
+	read v < <( bc <<<"pad(${q[0]},numwsize);" )
 	read v < <( sha256 "${m}${q[0]}" )
-	read v < <( bc 00_config.bc <<<"v=${v}; v;" )
+	read v < <( bc <<<"v=${v}; v;" )
 
 	if [[ "${v}" == "${c}" ]]
 	then
@@ -96,8 +96,7 @@ schauthsign() {
 
 	local -u s
 
-	read s < <( bc 00_config.bc 01_math.bc <<<\
-		"mod( (${k} + (${e} * ${d})), nn);" )
+	read s < <( bc <<<"mod( (${k} + (${e} * ${d})), nn);" )
 
 	echo -e "${s}\n${e}"
 }
@@ -107,12 +106,11 @@ schauthverify() {
 	local -u s="${1}" e="${2}" x="${3}" m="${4}" a="${5}"
 
 	local -au pubkey
-	readarray -t pubkey < <(bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
-		"uncompresspoint(${x});" )
+	readarray -t pubkey < <(bc <<<"uncompresspoint(${x});" )
 
 	local -u kx c
 
-	read kx < <(bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
+	read kx < <(bc <<<\
 		"ecmulcurve(${e},${pubkey[0]},${pubkey[1]},pp,nn);\
 		ex=tx; ey=ty;\
 		ecmulcurve(${s},ggx,ggy,pp,nn);\

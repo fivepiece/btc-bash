@@ -4,6 +4,8 @@
 # hex2bin HEX : BIN
 hex2bin() {
 
+	local -u hexstr
+
 	if [[ "${1}" == "" ]]
 	then
 		read hexstr
@@ -11,12 +13,10 @@ hex2bin() {
 		hexstr="${1}"
 	fi
 
-	declare -a bytearr;
-	i=0;
+	local -a bytearr;
+	local -i i=0;
 	while read -N2 byte
 	do
-#		bytearr[${i}]=${byte}
-#		i=$(( ${i} + 1))
 		bytearr+=( ${byte} )
 	done< <(echo -n ${hexstr})
 
@@ -32,8 +32,8 @@ alias str2bytes="od -t x1 -An -v"
 # echo " BYTE BYTE..." | bytes2hexstr : BYTEBYE...
 # bytes2hex " BYTE BYTE" : BYTEBYTE...
 bytes2hexstr() {
-
 	
+	local -u bytestr
 	if [[ "${1}" == "" ]]
 	then
 		readarray bytestr
@@ -51,6 +51,7 @@ bytes2hexstr() {
 # revbytes BYTE[0]BYTE[1]...BYTE[n] : BYTE[n]BYTE[n-1]...BYTE[0]
 revbyteorder() {
 
+	local -u hexstr
 	if [[ "${1}" == "" ]]
 	then
 		read hexstr
@@ -62,15 +63,12 @@ revbyteorder() {
 	then
 		hexstr="0${hexstr}"
 	fi
-#	tmpstr=""
-#	for (( i=0; i<${#hexstr}; i+=2 )); do tmpstr=' '"${hexstr:${i}:2}${tmpstr}"; done
+
 	local -a revstr
 	for (( i=$(( ${#hexstr}-2 )); i>=0; i-- ))
 	do
 		revstr+=( ${hexstr:$(( i*2 )):2} )
 	done
-#	tmpstr="${tmpstr^^}"
-#	printf "${tmpstr// /}"
 
 	revstr=${revstr[@]//$'\n'/}
 	revstr=${revstr^^}

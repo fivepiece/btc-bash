@@ -31,7 +31,7 @@ borrcalck() {
 	readarray -t pubkey < <( uncompresspoint "${pubkey}" )
 #	echo "P : ${pubkey[@]}" 1>&2
 
-	bc 99_hash.bc 00_config.bc 01_math.bc 02_ecmath.bc 03_ecdsa.bc <<<\
+	bc <<<\
 		"ecmulcurve(${s},ggx,ggy,nn,pp);\
 		s_x=tx; s_y=ty;\
 		ecmulcurve(${e},${pubkey[0]},${pubkey[1]},nn,pp);\
@@ -142,7 +142,7 @@ borrringend() {
 	read vhash < <( borrhash "${mhash}" "${sig[0]}" "${ring}" "${j}" )
 
 	echo "mod( ${nonce[0]} - ( ${vhash} * ${privarr[${j}]}),nn);"
-	read sig[1] < <( bc 00_config.bc 99_hash.bc 01_math.bc 02_ecmath.bc <<<\
+	read sig[1] < <( bc <<<\
 		"s=mod( ${nonce[0]} - ( ${vhash} * ${privarr[${j}]}),nn);\
 		pad(s,numwsize);" )
 	

@@ -78,10 +78,14 @@ define void verify(z, x, y, r, s){
 
 }
 
-define void recover(z, r, s){
+define void recoverapi(z, r, s, *ret[]){
 
     auto msg, rmn, r1x, r1y, r2x, r2y, invr, ptsr1x, ptsr1y, ptsr2x, ptsr2y, ptzgx, ptzgy, ptmul1x, ptmul1y, ptmul2x, ptmul2y, rptmul1x, rptmul1y, rptmul2x, rptmul2y;
 
+    ret[0] = 0;
+    ret[1] = 0;
+    ret[2] = 0;
+    ret[3] = 0;
     y[0] = 0;
     y[1] = 0;
 
@@ -124,8 +128,19 @@ define void recover(z, r, s){
     rptmul2x = tx;
     rptmul2y = ty;
 
-    print "\n# recover\n# X1 : ", rptmul1x;
-    print "\n# Y1 : ", rptmul1y;
-    print "\n#\n# X2 : ", rptmul2x;
-    print "\n# Y2 : ", rptmul2y, "\n";   
+    ret[0] = rptmul1x;
+    ret[1] = rptmul1y;
+    ret[2] = rptmul2x;
+    ret[3] = rptmul2y;
+}
+
+define void recover(z,r,s){
+
+    auto retarr[];
+    recoverapi(z,r,s,retarr[]);
+
+    print "\n# recover\n# X1 : ", retarr[0];
+    print "\n# Y1 : ", retarr[1];
+    print "\n#\n# X2 : ", retarr[2];
+    print "\n# Y2 : ", retarr[3], "\n";
 }

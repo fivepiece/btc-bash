@@ -18,6 +18,7 @@ _codeString=(\
 
 base58enc() {
 
+	local -u hexstr
 	if [[ "${1}" == "" ]]
 	then
 		read hexstr
@@ -27,11 +28,12 @@ base58enc() {
 
 	hexstr="${hexstr^^}"
 
+	local b58str revb58str zeroprefix
 	b58str=""
 	while IFS= read -r val58
 	do
 		b58str="${b58str}""${_codeString[${val58}]}"
-	done < <( bc <<<" \
+	done < <( BC_ENV_ARGS='-q' bc <<<" \
 		obase=10; \
 		ibase=16; \
 		x=${hexstr}; \
@@ -53,6 +55,7 @@ base58enc() {
 
 base58dec() {
 
+	local b58str
 	if [[ "${1}" == "" ]]
 	then
 		read b58str
@@ -60,23 +63,25 @@ base58dec() {
 		b58str="${1}"
 	fi
 
-	b58arr_bc=()
+	local -a b58arr_bc
+#	b58arr_bc=()
 
 	for (( i = 0; i < $(( ${#b58str} )); i++ ))
 	do
 		b58arr_bc[${i}]="c[${i}]="${_stringCode[${b58str:${i}:1}]}"; "
 	done
 
-	read b16str < <( BC_LINE_LENGTH=0 bc -q <<<" \
-			${b58arr_bc[@]} \
-			obase=16; \
-			i=0; \
-			result=0; \
-			while (i<${#b58str}){ \
-			  result=(result*58)+c[i]; \
-			  i=i+1; }; \
-			if (result > 0){
-			result; };" )
+	local zero oneprefix fixhalfbyte
+	read b16str < <( BC_ENV_ARGS='-q' bc <<<"\
+		${b58arr_bc[@]}\
+		obase=16;\
+		i=0;\
+		result=0;\
+		while (i<${#b58str}){\
+		  result=(result*58)+c[i];\
+		  i=i+1; };\
+		if (result > 0){\
+		result; };" )
 	zero="0"
 	oneprefix="${b58str%%${b58str/*(1)/}}"
 	fixhalfbyte="$(( ${#b16str} % 2 ))"
@@ -86,6 +91,7 @@ base58dec() {
 
 pub2addr() {
 
+	local -u pubhex pub160 pub256
 	if [[ "${1}" == "" ]]
 	then
 		read pubhex
@@ -103,6 +109,7 @@ pub2addr() {
 
 pubhash2addr() {
 
+	local -u hashhex pub256
 	if [[ "${1}" == "" ]]
 	then
 		read hashhex
@@ -119,32 +126,29 @@ compresspoint() {
 
 	local -u x="${1}" y="${2}"
 
-	bc 00_config.bc 99_hash.bc 01_math.bc 02_ecmath.bc <<<\
-		"compresspoint(${x},${y});"
+	bc <<<"compresspoint(${x},${y});"
 }
 
 uncompresspoint() {
 
 	local -u x="${1}"
 
-	bc 00_config.bc 01_math.bc 02_ecmath.bc <<<\
-		"uncompresspoint(${x});"
+	bc <<<"uncompresspoint(${x});"
 }
 
 num2compsize() {
 
 	local -u size="${1}"
 
-	read size < <( bc 99_bitcoin.bc <<<\
-		"x=${size};\
-		obase=16; ibase=16;\
-		compsize(x);" )
+	read size < <( bc <<<"x=${size}; compsize(x);" )
 
 	echo -n "${size:0:2}"
 	revbyteorder <<<"${size:2}"
 }
 
 sisaddr() {
+
+	local -u pubhex pub02 pub03 pub04 pub04n
 
 	if [[ "${1}" == "" ]]
 	then
@@ -161,7 +165,7 @@ sisaddr() {
 	read pub03 < <( printf "%s%064s" '03' "${pubhex}" )
 	pub03="${pub03// /0}"
 
-	readarray yval < <( bc -q 00_config.bc 01_math.bc 02_ecmath.bc 03_ecdsa.bc <<<"getycurve(${pubhex},aa,bb,pp); y[0]; y[1];" )
+	readarray yval < <( bc <<<"getycurve(${pubhex},aa,bb,pp); y[0]; y[1];" )
 
 	read pub04 < <( printf "%s%064s%065s" '04' "${pubhex}" "${yval[0]}" )
 	pub04="${pub04// /0}"

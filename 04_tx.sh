@@ -93,7 +93,7 @@ datasize() {
 	else
 		len="${1}"
 	fi
-	read size < <( bc 99_bitcoin.bc <<<"size=(${len}/2);\
+	read size < <( BC_ENV_ARGS='-q' bc 99_bitcoin.bc <<<"size=(${len}/2);\
 					obase=16; ibase=16;\
 					compsize(size);" )
 
@@ -257,7 +257,7 @@ pay2wsh() {
 randspendamnt() {
 
     local amount
-    read amount < <( bc <<<"scale=8;\
+    read amount < <( BC_ENV_ARGS='-q' bc <<<"scale=8;\
 	    (${minspend} + 0.000${RANDOM})/1;")
 
     reducebalance "${amount}"
@@ -267,7 +267,7 @@ randspendamnt() {
 
 reducebalance() {
 
-	read balance < <( bc <<<"scale=8;\
+	read balance < <( BC_ENV_ARGS='-q' bc <<<"scale=8;\
 		(${balance} - ${1})/1;") 
 }
 
@@ -449,7 +449,7 @@ mkrandouts() {
 	if [[ "${fundstate[*]}" =~ "Insufficient" ]]
 	then
 		read balance < <( segnet-cli getbalance "*" 1 )
-		read minoutputs < <( bc <<<"${balance} / ${minspend}" )
+		read minoutputs < <( BC_ENV_ARGS='-q' bc <<<"${balance} / ${minspend}" )
 		if (( ${minoutputs} == 0 ))
 		then
 			echo "no funds"

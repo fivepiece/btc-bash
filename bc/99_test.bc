@@ -146,7 +146,7 @@ testecmul();
 
 define void testsig(){
 
-    auto d,z,k,r,s,x,y;
+    auto d,z,k,r,s,x,y,ret[];
 
     print "Test ecdsa operations\n";
 
@@ -175,8 +175,8 @@ define void testsig(){
     verify(z,x,y,r,s);
     ( r == rx );
 
-    recover(z,r,s);
-    ( ((x == rptmul1x) && (y == rptmul1y)) || ((x == rptmul2x) && (y == rptmul2y)) );
+    recoverapi(z,r,s,ret[]);
+    ( ((x == ret[0]) && (y == ret[1])) || ((x == ret[2]) && (y == ret[3])) );
 }
 testsig();
 
