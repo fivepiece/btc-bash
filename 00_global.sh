@@ -35,9 +35,9 @@ bitcoinvers() {
 
 bitcoinlens() {
 
-	export hlen="40"      # hash digest size in bytes
-	export keysize="80"   # key size in words
-	export hashblock="160" # hash block size words
+	export hlen="20"      # hash digest size in bytes
+	export keysize="40"   # key size in words
+	export hashblock="80" # hash block size words
 
 	export vsize="32"     # v,k size in bytes, base 10
 
