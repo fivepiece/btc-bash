@@ -10,82 +10,64 @@ script_mofn=( "m" "pubkeys" "n" "CHECKMULTISIG" )
 script_p2wsh=( "0x00" "0x20" "scripthash" )
 script_p2sh=( "HASH160" "0x14" "scripthash" "EQUAL" )
 
-# num2compsize()
-
 serdata() {
 
-	local -a tmparr
-	local -a data
-	read -r -a data <<<"${1^^}"
-	local size
+    local -a tmparr
+    local -a data
+    read -r -a data <<<"${1^^}"
+    local size
 
-	local j
-	j=0
-	for (( i=0; i<${#data[@]}; i++ ))
-	do
-		read size < <( datasize ${#data[${i}]} )
-		tmparr[${j}]="0x${size}"
-		tmparr[$(( ${j}+1 ))]="0x${data[${i}]}"
-		j=$(( ${j}+2 ))
-	done
+    local j
+    j=0
+    for (( i=0; i<${#data[@]}; i++ ))
+    do
+        read size < <( datasize ${#data[${i}]} )
+        tmparr[${j}]="0x${size}"
+        tmparr[$(( ${j}+1 ))]="0x${data[${i}]}"
+        j=$(( ${j}+2 ))
+    done
 
-	echo "${tmparr[@]}"
+    echo "${tmparr[@]}"
 }
 
 serscript() {
 
-	local -a script
-	read -r -a script <<<"${@^^}"
+    local -a script
+    read -r -a script <<<"${@^^}"
 
-	local ser
-	ser=""
-	
-	for (( i=0; i<${#script[@]}; i++ ))
-	do
-		elem="${script[${i}]}"
-		if [[ "${elem}" =~ "0X" ]]
-		then
-			ser+="${elem/0X/}"
-		else
-			ser+="${opcodes[${elem}]}"
-		fi
-	done
+    local ser
+    ser=""
+    
+    for (( i=0; i<${#script[@]}; i++ ))
+    do
+        elem="${script[${i}]}"
+        if [[ "${elem}" =~ "0X" ]]
+        then
+            ser+="${elem/0X/}"
+        else
+            ser+="${opcodes[${elem}]}"
+        fi
+    done
 
-	echo "${ser^^}"
+    echo "${ser^^}"
 }
 
-addr2pubkey() {
+datasize() {
+    local len size order revsize
 
-	local pubkey
-	read pubkey < <( segnet-cli validateaddress "${1}" | grep pubkey )
-	pubkey="${pubkey#*:}"
-	pubkey="${pubkey//[\",]/}"
+    if [[ "${1}" == "" ]]
+    then
+        read len
+    else
+        len="${1}"
+    fi
+    read size < <( BC_ENV_ARGS='-q' bc 99_bitcoin.bc <<< \
+        "size=(${len}/2); \
+        obase=16; ibase=16; \
+        compsize(size);" );
 
-	echo "${pubkey}"
-}
-
-addr2hash160() {
-
-	local pkhash
-	read pkhash < <( base58dec "${1}" )
-	pkhash="${pkhash:2:40}"
-
-	echo "${pkhash}"
-}
-
-randspendamnt() {
-
-    local amount
-    read amount < <( BC_ENV_ARGS='-q' bc <<<"scale=8;\
-	    (${minspend} + 0.000${RANDOM})/1;")
-
-    reducebalance "${amount}"
-
-    echo "${amount}"
-}
-
-reducebalance() {
-
-	read balance < <( BC_ENV_ARGS='-q' bc <<<"scale=8;\
-		(${balance} - ${1})/1;") 
+    order="${size:0:2}"
+    read revsize < <( revbyteorder "${size:2}" )
+    
+    echo "${order}""${size}"
 }

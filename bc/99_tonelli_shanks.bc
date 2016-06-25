@@ -1,0 +1,144 @@
+define factorpow2(n){
+
+  auto pow, rem, par;
+
+  for (i=( wordlen(n)/2 ); i>0; i--){
+
+    pow = 2^i;
+    rem = ( n % pow );
+    par = ( n / pow );
+    if ( ( rem == 0 ) && ( par % 2 == 1 ) ){
+
+        return i;
+    }
+  }
+
+  return -1;
+}
+
+define getnonres(p){
+
+  auto nonres, pow;
+  pow = ( (p - 1)/2 );
+  nonres = 1;
+
+  while ( (powmod(nonres,pow, p) + 1) != p ){
+
+    nonres += 1;
+  }
+
+  return nonres;
+}
+
+define getlhscurve(x, a, b, p){
+
+  return mod(x^3 + a*x + b,p);
+}
+
+define getrhscurve(y, p){
+
+  return mod(y^2,p);
+}
+
+define isquadres(sqr, p){
+
+  return ( powmod(sqr,(p-1)/2,p) == 1 );
+}
+
+define void setsqrtvals(p){
+
+  sqrtp = p;
+  sqrts = factorpow2(p-1);
+  sqrtq = (p / 2^sqrts);
+
+  sqrtz = getnonres(p);
+  sqrtc = powmod(sqrtz,sqrtq,p);
+}
+setsqrtvals(pp);
+
+define void tonshan(n, s, q, c, p, *res[]){
+
+  auto r, t, m, i, b;
+
+  res[0] = 0;
+  res[1] = 0;
+  r = powmod(n,(q+1)/2,p);
+  t = powmod(n,q,p);
+  m = s;
+
+  while ( t != 1 ){
+
+    i=1;
+    while ( (powmod(t,powmod(2,i,p),p) != 1) && (i < m) ){
+
+      i += 1;
+    }
+
+    b = powmod(c,powmod(2,(m-i-1),p),p);
+    r = mod(r * b, p);
+    t = mod(t * (b^2),p);
+    c = mod(b^2,p);
+    m = i;
+  }
+
+  res[0] = r;
+  res[1] = mod(-r,p);
+}
+
+define void modsqrtapi(x,p,*roots[]){
+
+  auto s, q, z, c, ret[];
+
+  roots[0] = 0;
+  roots[1] = 0;
+  s = sqrts;
+  q = sqrtq;
+  z = sqrtz;
+  c = sqrtc;
+  
+  tonshan(x, s, q, c, p, ret[]);
+  roots[0] = ret[0];
+  roots[1] = ret[1];
+}
+
+define void modsqrt(n, p){
+
+  auto ret[];
+
+  if ( ! isquadres(n, p) ){
+
+    print "\n# *** Not a square\n";
+  }
+  if ( p != sqrtp ){
+
+    setsqrtvals(p);
+  }
+
+  modsqrtapi(n,p,ret[]);
+
+  print "\n# modsqrt()\n#\n";
+  print "# X1 = ", ret[0], "\n";
+  print "# X2 = ", ret[1], "\n";
+} 
+
+define void getyts(x){
+
+  auto ysq, ret[];
+
+  ysq = getlhscurve(x, aa, bb, pp);
+
+  if ( ! isquadres(ysq, pp) ){
+
+    print "\n# *** Not a point\n";
+  }
+  if ( pp != sqrtp ){
+
+    setsqrtvals(pp);
+  }
+
+  modsqrtapi(ysq,pp,ret[]);
+
+  print "\n# getyts()\n#\n";
+  print "# Y1 = ", ret[0], "\n";
+  print "# Y2 = ", ret[1], "\n";
+}

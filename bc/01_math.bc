@@ -55,7 +55,6 @@ define powmod(base, exp, n){
 
     ans = 1;
     b = mod(b,n);
-
     while (e > 1){
 
         if (e % 2 == 1){

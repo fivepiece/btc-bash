@@ -179,3 +179,41 @@ sisaddr() {
 		echo -e "\n${pub}"
 	done
 }
+
+dec2amount() {
+
+	local decimal revamount
+	if [[ "${1}" == "" ]]
+	then
+		read decimal
+	else
+		decimal="${1}"
+	fi
+
+	read revamount < <( bc <<<" \
+		ibase=A; \
+		bal=${decimal}*100000000; \
+		ibase=16; \
+		pad(bal/1,10);" )
+
+	revbyteorder "${revamount}"
+}
+
+amount2dec() {
+
+	local hexamount revamount
+	if [[ "${1}" == "" ]]
+	then
+		read hexamount
+	else
+		hexamount="${1}"
+	fi
+
+	read revamount < <( revbyteorder "${hexamount}" )
+
+	BC_ENV_ARGS='-q' bc <<<" \
+		scale=8; \
+		satoshi=100000000; \
+		ibase=16; \
+		print ${revamount}/satoshi;"
+}

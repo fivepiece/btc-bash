@@ -120,7 +120,7 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 	# keys larger than the maximum keysize are hashed to a keysize length hash
 	if (( "${#key}" > "$((16#${keysize}))" ))
 	then
-		read key < <( sha256 "${key}" )
+		read key < <( "${hashfun}" "${key}" )
 	fi
 
 	local -u knw
@@ -142,13 +142,13 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 	text="${pads[2]}${text}"
 
 	# step (4)
-	read text < <( sha256 "${text}" )
+	read text < <( "${hashfun}" "${text}" )
 
 	# step (6)
 	text="${pads[1]}${text}"
 
 	# step (7)
-	read text < <( sha256 "${text}" )
+	read text < <( "${hashfun}" "${text}" )
 
 	echo "${text}"
 }
@@ -167,7 +167,7 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 
 	local -u h1 v k t foundk
 	# 3.2.a
-	read h1 < <( sha256 "${msg}" )
+	read h1 < <( "${hashfun}" "${msg}" )
 #	echo
 #	echo "# sighash : ${h1}"
 
