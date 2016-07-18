@@ -91,14 +91,14 @@ define void recoverapi(z, r, s, *ret[]){
 
     msg = mod(-z,nn);
 
-    rmn = mod(r,nn);
+#    rmn = mod(r,nn);
     getycurve(r, aa, bb, pp);
-    r1x = rmn;
-    r2x = rmn;
+    r1x = r;
+    r2x = r;
     r1y = y[0];
     r2y = y[1];
     
-    invr = invmod(rmn,nn);
+    invr = invmod(r,nn);
 
     ecmulcurve(s, r1x, r1y, nn, pp);
     ptsr1x = tx;
@@ -138,6 +138,94 @@ define void recover(z,r,s){
 
     auto retarr[];
     recoverapi(z,r,s,retarr[]);
+
+    print "\n# recover\n# X1 : ", retarr[0];
+    print "\n# Y1 : ", retarr[1];
+    print "\n#\n# X2 : ", retarr[2];
+    print "\n# Y2 : ", retarr[3], "\n";
+}
+define void verify_j(z, x, y, r, s){
+
+    auto w, u1, u2, u1x, u1y, u2x, u2y;
+
+    w = invmod(s,nn);
+    u1 = mod(z * w,nn);
+    u2 = mod(r * w,nn);
+
+    ecmulcurve(u1, jjx, jjy, nn, pp);
+    u1x = tx;
+    u1y = ty;
+
+    ecmulcurve(u2, x, y, nn, pp);
+    u2x = tx;
+    u2y = ty;
+    
+    ecaddcurve(u1x, u1y, u2x, u2y, pp);    
+    print "\n# verify\n# RX : ", rx, "\n# RY : ", ry, "\n"
+
+}
+
+define void recoverapi_j(z, r, s, *ret[]){
+
+    auto msg, rmn, r1x, r1y, r2x, r2y, invr, ptsr1x, ptsr1y, ptsr2x, ptsr2y, ptzgx, ptzgy, ptmul1x, ptmul1y, ptmul2x, ptmul2y, rptmul1x, rptmul1y, rptmul2x, rptmul2y;
+
+    ret[0] = 0;
+    ret[1] = 0;
+    ret[2] = 0;
+    ret[3] = 0;
+    y[0] = 0;
+    y[1] = 0;
+
+    msg = mod(-z,nn);
+
+#    rmn = mod(r,nn);
+    getycurve(r, aa, bb, pp);
+    r1x = r;
+    r2x = r;
+    r1y = y[0];
+    r2y = y[1];
+    
+    invr = invmod(r,nn);
+
+    ecmulcurve(s, r1x, r1y, nn, pp);
+    ptsr1x = tx;
+    ptsr1y = ty;
+
+    ecmulcurve(s, r2x, r2y, nn, pp);
+    ptsr2x = tx;
+    ptsr2y = ty;
+
+#    ecmulcurve(msg, ggx, ggy, nn, pp);
+    ecmulcurve(msg, jjx, jjy, nn, pp);
+    ptzgx = tx;
+    ptzgy = ty;
+
+    ecaddcurve(ptsr1x, ptsr1y, ptzgx, ptzgy, pp);
+    ptmul1x = rx;
+    ptmul1y = ry;
+
+    ecaddcurve(ptsr2x, ptsr2y, ptzgx, ptzgy, pp);
+    ptmul2x = rx;
+    ptmul2y = ry;
+
+    ecmulcurve(invr, ptmul1x, ptmul1y, nn, pp);
+    rptmul1x = tx;
+    rptmul1y = ty;
+
+    ecmulcurve(invr, ptmul2x, ptmul2y, nn, pp);
+    rptmul2x = tx;
+    rptmul2y = ty;
+
+    ret[0] = rptmul1x;
+    ret[1] = rptmul1y;
+    ret[2] = rptmul2x;
+    ret[3] = rptmul2y;
+}
+
+define void recover_j(z,r,s){
+
+    auto retarr[];
+    recoverapi_j(z,r,s,retarr[]);
 
     print "\n# recover\n# X1 : ", retarr[0];
     print "\n# Y1 : ", retarr[1];

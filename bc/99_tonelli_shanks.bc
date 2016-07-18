@@ -54,8 +54,9 @@ define void setsqrtvals(p){
   sqrtz = getnonres(p);
   sqrtc = powmod(sqrtz,sqrtq,p);
 }
-setsqrtvals(pp);
 
+# https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm#The_algorithm
+# s, q and c are computed by setsqrtvals()
 define void tonshan(n, s, q, c, p, *res[]){
 
   auto r, t, m, i, b;
@@ -120,6 +121,31 @@ define void modsqrt(n, p){
   print "# X1 = ", ret[0], "\n";
   print "# X2 = ", ret[1], "\n";
 } 
+
+define void getycurve(x,a,b,p){
+
+  auto ysq, ret[];
+
+  ysq = getlhscurve(x, aa, bb, pp);
+
+  if ( ! isquadres(ysq, pp) ){
+
+#    print "\n# *** Not a point\n";
+    return
+  }
+  if ( pp != sqrtp ){
+
+    setsqrtvals(pp);
+  }
+
+  y[0] = 0;
+  y[1] = 1;
+
+  modsqrtapi(ysq,pp,ret[]);
+
+  y[0] = ret[0];
+  y[1] = ret[1];
+}
 
 define void getyts(x){
 

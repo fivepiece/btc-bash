@@ -1,5 +1,24 @@
 #!/bin/bash
 
+sha224() {
+
+	local -u hexstr
+	if [[ "${1}" == "" ]]
+	then
+	
+		read hexstr
+	else
+	
+		hexstr="${1}"
+	fi
+
+	local -u digest
+	read digest < <( hex2bin "${hexstr^^}" | sha224sum -b )
+	digest="${digest% *-}"
+
+	printf "${digest^^}"
+}
+
 sha256() {
 
 	local -u hexstr
@@ -14,6 +33,25 @@ sha256() {
 
 	local -u digest
 	read digest < <( hex2bin "${hexstr^^}" | sha256sum -b )
+	digest="${digest% *-}"
+
+	printf "${digest^^}"
+}
+
+sha384() {
+
+	local -u hexstr
+	if [[ "${1}" == "" ]]
+	then
+	
+		read hexstr
+	else
+	
+		hexstr="${1}"
+	fi
+
+	local -u digest
+	read digest < <( hex2bin "${hexstr^^}" | sha384sum -b )
 	digest="${digest% *-}"
 
 	printf "${digest^^}"
@@ -117,8 +155,8 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 	key="${1^^}"
 	text="${2^^}"
 
-	# keys larger than the maximum keysize are hashed to a keysize length hash
-	if (( "${#key}" > "$((16#${keysize}))" ))
+	# keys larger than the blocksize are hashed
+	if (( "${#key}" > "$((16#${hashBlockLen}))" ))
 	then
 		read key < <( "${hashfun}" "${key}" )
 	fi
@@ -136,7 +174,8 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 	# pads[1] = opad
 	# pads[2] = ipad
 	#
-	readarray -t pads < <( bc <<<"hmac(${#knw}, ${key}, ${hashblock});" )
+	readarray -t pads < <( bc <<<"set_hmac_pads(${hashBlockLen}); \
+		hmac(${#knw}, ${key}, ${hashBlockLen});" )
 
 	# step (3)
 	text="${pads[2]}${text}"
