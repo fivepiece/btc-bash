@@ -71,7 +71,7 @@ bip32_ckdpriv()
 
 bip32_ckdpub()
 {
-    local -u k_par="${1}" c_par="${2}" n="${3}"
+    local -u p_par="${1}" c_par="${2}" n="${3}"
     set_hashfun_const "sha512"
     
     read n < <( bip32_parse_index "${n}" )
@@ -83,34 +83,34 @@ bip32_ckdpub()
 	    return
     else
 	    read ser_i < <( bip32_ser32 "${n}" )
-	    read I_val < <( hmac "${c_par}" "${k_par}${ser_i}" )
+	    read I_val < <( hmac "${c_par}" "${p_par}${ser_i}" )
     fi
 
     local -u I_L I_R k_i c_i
-    local -au k_upk
+    local -au p_upk
 
-    readarray -t k_upk < <( uncompresspoint "${k_par}" )
+    readarray -t p_upk < <( uncompresspoint "${p_par}" )
 
     I_L="${I_val:0:64}"
     I_R="${I_val:64}"
 
-    read k_i < <( bc <<<" \
+    read p_i < <( bc <<<" \
 	    if ( ${I_L} == 0 ){ \
 		    0; \
 	    } else { \
 	        ecmulcurve(${I_L},ggx,ggy,nn,pp); \
-		ecaddcurve(tx,ty,${k_upk[0]},${k_upk[1]},pp); \
+		ecaddcurve(tx,ty,${p_upk[0]},${p_upk[1]},pp); \
 		if ( rx == 0 ){ \
 			0; \
 		} else {
     			compresspoint(rx,ry); } }" )
-    if [[ "${k_i}" == "0" ]]
+    if [[ "${p_i}" == "0" ]]
     then
-	    bip32_ckdpub "${k_par}" "${c_par}" "$(( ${n}+1 ))"
+	    bip32_ckdpub "${p_par}" "${c_par}" "$(( ${n}+1 ))"
     fi
 
     c_i="${I_R}"
-    echo -e "${k_i}\n${c_i}"
+    echo -e "${p_i}\n${c_i}"
 }
 
 bip32_master()
@@ -232,4 +232,39 @@ bip32_xpriv_branch()
     readarray -t next_ckey < <( bip32_ckdpriv "${data[5]:2}" "${data[4]}" "${index}" )
 
     echo "${xprvVer}${next_depth}${par_fp:0:8}${next_i}${next_ckey[1]}00${next_ckey[0]}"
+}
+
+bip32_xpub_branch()
+{
+    local -u par_xpub
+    if [[ "${2}" == "" ]]
+    then
+	    read par_xpub
+	    read index < <( bip32_parse_index "${1}" )
+    else
+	    par_xpub="${1}"
+	    read index < <( bip32_parse_index "${2}" )
+    fi
+
+    local -au data next_ckey
+    readarray -t data < <( bip32_decode "${par_xpub}" )
+
+    if [[ "${data[5]:0:2}" != "02" ]] && [[ "${data[5]:0:2}" != "03" ]]
+    then
+	    echo "FAILURE not an xpub"
+	    return
+    fi
+
+    local -au par_point
+    local -u par_fp next_depth next_i
+
+    read par_fp < <( hash160 "${data[5]}" )
+
+    read next_depth < <( bc <<<"pad(${data[1]} + 1,2)" )
+
+    read next_i < <( bip32_ser32 "${index}" )
+    
+    readarray -t next_ckey < <( bip32_ckdpub "${data[5]}" "${data[4]}" "${index}" )
+
+    echo "${xpubVer}${next_depth}${par_fp:0:8}${next_i}${next_ckey[1]}${next_ckey[0]}"
 }

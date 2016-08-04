@@ -199,9 +199,9 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 	msg="${2^^}"
 
 	# keys shorter than the keysize are appended 0x00's
-	if (( ${#key} < $((16#${keysize})) ))
+	if (( ${#key} < $((16#${hmacKeyWordLen})) ))
 	then
-		read key < <( bc <<<"pad(${key},${keysize});" )
+		read key < <( bc <<<"pad(${key},${hmacKeyWordLen});" )
 	fi
 
 	local -u h1 v k t foundk
@@ -211,12 +211,12 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 #	echo "# sighash : ${h1}"
 
 	# 3.2.b
-	read v < <( printf "%0*d" "${vsize}" 0 )
+	read v < <( printf "%0*d" "${hmacVDecLen}" 0 )
 	v="${v//0/01}"
 #	echo "# 3.2.b, v : ${v}"
 
 	# 3.2.c
-	read k < <( printf "%0*d" "${vsize}" 0 )
+	read k < <( printf "%0*d" "${hmacVDecLen}" 0 )
 	k="${k//0/00}"
 #	echo "# 3.2.c, k : ${k}"
 
@@ -244,7 +244,7 @@ sigk() { # https://tools.ietf.org/html/rfc6979#section-3.2
 		t=""
 
 		# 3.2.h.2
-		while (( ${#t} < $((16#${keysize})) ))
+		while (( ${#t} < $((16#${hmacKeyWordLen})) ))
 		do
 #			echo "start 3.2.h.2"
 			read v < <( hmac "${k}" "${v}" )
