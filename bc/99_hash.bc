@@ -204,10 +204,14 @@ define void hmac(knw, key, wsize){
     i_key_pad=xor(key,pad2);
 
     pad(key,wsize);
-    opad_len=wordlen(o_key_pad);
-    ipad_len=wordlen(i_key_pad);
-    pad(o_key_pad,wsize-opad_len);
-    pad(i_key_pad,wsize-ipad_lan);
+#    print "o_key_pad : ", o_key_pad, "\ni_key_pad : ", i_key_pad, "\n";
+#    opad_len=wordlen(o_key_pad);
+#    ipad_len=wordlen(i_key_pad);
+#    print "opad_len = ", opad_len, "\nipad_len = ", ipad_len, "\nwsize : ", wsize, "\n";
+#    pad(o_key_pad,wsize-opad_len);
+#    pad(i_key_pad,wsize-ipad_lan);
+    pad(o_key_pad,wsize);
+    pad(i_key_pad,wsize);
 }
 
 define void set_hmac_pads(block_word_len){
