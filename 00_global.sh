@@ -21,14 +21,25 @@ set_network_versions() {
             export xprvVer="04358394"
             export clientname="testnet"
             ;;
+    
         segnet)
             export privkeyVer="9E"
             export p2pkhVer="1E"
             export p2shVer="32"
             export xpubVer="043587CF"
             export xprvVer="04358394"
+            export clientname="segnet"
+            ;;
+
+        regtest)
+            export privkeyVer="EF"
+            export p2pkhVer="6F"
+            export p2shVer="C4"
+            export xpubVer="043587CF"
+            export xprvVer="04358394"
             export clientname="regtest"
             ;;
+        
     esac
 }
 

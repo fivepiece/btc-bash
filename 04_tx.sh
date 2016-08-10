@@ -15,7 +15,7 @@ script_ced=( "IF" "mofn" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey
 script_revc=( "HASH160" "revokehash" "EQUAL" "IF" "pubkey" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey" "ENDIF" "CHECKSIG" )
 script_htlc=( "HASH160" "DUP" "rhash" "EQUAL" "IF" "countdown" "CHECKSEQUENCEVERIFY" "2DROP" "pubkey" "ELSE" "crhash" "EQUAL" "NOTIF" "deadline"  "CHECKLOCKTIMEVERIFY" "DROP" "ENDIF" "pubkey" "ENDIF" "CHECKSIG" )
 
-minspend=.37
+minspend=1
 # maxspend=21
 
 getinputs(){

@@ -12,15 +12,16 @@ hex2bin() {
     else
         hexstr="${1}"
     fi
-
+# set +xv
     local -al bytearr
     local -i i=0
     while read -N2 byte
     do
+#        echo "byte : ${byte}"
         bytearr+=( '\x'${byte} )
 
     done <<<"${hexstr}"
-
+# set -xv
     printf "%b" ${bytearr[*]}
 }
 

@@ -176,6 +176,8 @@ hmac() { # https://www.ietf.org/rfc/rfc2104.txt
 	#
 	readarray -t pads < <( bc <<<"set_hmac_pads(${hashBlockLen}); \
 		hmac(${#knw}, ${key}, ${hashBlockLen});" )
+#    echo -e "#knw : ${#knw}\nkey : ${key}\nhashBlockLen : ${hashBlockLen}\ntext : ${text}" > /dev/null
+#    printf "%s\n" ${pads[@]} > /dev/null
 
 	# step (3)
 	text="${pads[2]}${text}"

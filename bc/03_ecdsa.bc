@@ -53,7 +53,15 @@ define sign(x, k, z, d, n){
     sval = mod((invmod(k,n) * mod((z+(rval*d)),n)),n);
 
 #    print "\n# S : ", sval, "\n";
-    return sval;
+
+    if ( sval > (n/2) ){
+
+        return mod(-sval,nn);
+    } else {
+
+        return sval;
+    }
+#    return sval;
 }
 
 
