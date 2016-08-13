@@ -3,3 +3,8 @@ bc/checksig.sh
 bc/collatz.bc
 bc/spin.bc
 bc/wallet.txt
+wallet.txt
+tx/inputs.json
+tx/losttx.sh
+tx/privkeys.list
+tx/pubkeys.list
