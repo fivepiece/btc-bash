@@ -12,3 +12,20 @@ script_ser_num ()
     read sernum < <( revbyteorder "${sernum}" )
     data_pushdata "${sernum}"
 }
+
+
+tx_ser_int ()
+{
+    if (( "${1}" > (2**32)-1 )); then
+
+        echo "error: tx_ser_int: int > 2^32-1" >&2
+        return
+    fi
+
+    local -u serint
+
+    read serint < <( bip32_ser32 "${1}" )
+    read serint < <( revbyteorder "${serint}" )
+
+    echo "${serint}"
+}

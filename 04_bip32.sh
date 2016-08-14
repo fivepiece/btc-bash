@@ -21,6 +21,7 @@ bip32_ser32()
 {
     bc <<<"ibase=A; \
 	   num=${1^^}; \
+       ibase=16; \
 	   pad(num,8);"
 }
 

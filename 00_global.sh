@@ -80,7 +80,7 @@ set_hashfun_const() {
     esac
 }
 
-set_network_versions "bitcoin"
+set_network_versions "regtest"
 set_hashfun_const "sha256"
 
 export sources_root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -98,5 +98,6 @@ source "${sources_root}/02_hash.sh"
 source "${sources_root}/03_encode.sh"
 source "${sources_root}/04_tx.sh"
 source "${sources_root}/04_schnorr.sh"
+source "${sources_root}/04_bip32.sh"
 source "${sources_root}/05_borr.sh"
 source "${sources_root}/99_script.sh"

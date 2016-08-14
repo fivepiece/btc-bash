@@ -31,7 +31,6 @@ tx_ser[vins]=""
 tx_ser[inputs]=""
 tx_ser[vouts]=""
 tx_ser[outputs]=""
-tx_ser[vwits]=""
 tx_ser[witness]=""
 tx_ser[nlocktime]=""
 
