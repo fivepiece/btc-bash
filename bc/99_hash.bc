@@ -72,28 +72,28 @@ define fpad(n, len){
     return n*10^(len-wordlen(n));
 }
 
-define void deepcopy(from[], size){
+#define void deepcopy(from[], size){
+#
+#    to=0;
+#
+#    for (i=0; i<size; i++){
+#
+#        to[i]=from[i];
+#    }
+#}
 
-    to=0;
-
-    for (i=0; i<size; i++){
-
-        to[i]=from[i];
-    }
-}
-
-define void tobitarr(n){
-
-    bitarr=0;
-    ibit=-1;
-
-    while (n > 0){
-
-        ibit = ibit+1;
-        bitarr[ibit] = (n % 2);
-        n /= 2;
-    }
-}
+#define void tobitarr(n){
+#
+#    bitarr=0;
+#    ibit=-1;
+#
+#    while (n > 0){
+#
+#        ibit = ibit+1;
+#        bitarr[ibit] = (n % 2);
+#        n /= 2;
+#    }
+#}
 
 define xor(a, b){
 
