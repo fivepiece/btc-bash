@@ -2,7 +2,7 @@
 
 # abstract scripts and opcodes
 
-op_num=( "00" "51" "52" "53" "54" "55" "56" "57" "58" "59" "5A" "5B" "5C" "5D" "5E" "5F" "60" )
+# op_num=( "00" "51" "52" "53" "54" "55" "56" "57" "58" "59" "5A" "5B" "5C" "5D" "5E" "5F" "60" )
 ser_data=( "size" "data" )
 
 
@@ -19,7 +19,7 @@ script_p2sh=( "HASH160" "0x14" "scripthash" "EQUAL" )
 
 script_ced=( "IF" "escrow_script" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "timeout_script" "ENDIF" )
 script_revc=( "HASH160" "revokehash" "EQUAL" "IF" "pubkey" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey" "ENDIF" "CHECKSIG" )
-script_htlc=( "HASH160" "DUP" "rhash" "EQUAL" "IF" "countdown" "CHECKSEQUENCEVERIFY" "2DROP" "pubkey" "ELSE" "crhash" "EQUAL" "NOTIF" "deadline"  "CHECKLOCKTIMEVERIFY" "DROP" "ENDIF" "pubkey" "ENDIF" "CHECKSIG" )
+script_htlc=( "HASH160" "DUP" "rhash" "EQUAL" "IF" "countdown" "CHECKSEQUENCEVERIFY" "2DROP" "pubkey" "ELSE" "crhash" "EQUAL" "NOTIF" "deadline" "CHECKLOCKTIMEVERIFY" "DROP" "ENDIF" "pubkey" "ENDIF" "CHECKSIG" )
 
 # in : length of data in words
 # out: lencth in compactsize
@@ -72,7 +72,24 @@ data_pushdata()
     local -a pushop
     data="${1}"
 
-    read size < <( data_size2wsize "${#data}" )
+    if (( "${#data}" == 2 )); then
+
+        local data16="$((16#${data}))"
+
+        if [[ "${op_num[${data16}]}" != "" ]]; then
+
+            echo "0x${op_num[${data16}]}"
+            return
+        fi
+
+        if [[ "${data}" == '81' ]]; then
+
+            echo "0x${op_num[-1]}"
+            return
+        fi
+    fi
+
+    read size < <( data_size2wsize "${#data}" ) 
     readarray -t pushop < <( data_wsize2pushop "${size}" )
     read pushop[1] < <( revbyteorder <<<"${pushop[1]}" )
 
@@ -110,12 +127,31 @@ script_serialize ()
     ser=""
 
     for ((i=0; i<${#script[@]}; i++ )); do
+        
         elem="${script[${i}]}"
-        if [[ "${elem}" =~ "0X" ]]; then
+        read is_bignum < <( script_is_bignum "${elem}" )
+
+        if [[ "${elem}" =~ "0X" ]]; then   # literal element: 0x7093, 0xAABB00 ...
+                        
             ser+="${elem/0X/}"
-        else
-            ser+="${opcodes[${elem}]}"
-        fi;
+
+        elif (( "${is_bignum}" )); then    # bignum [-2^31+1, 2^31-1]: -100, 999,  1512, 0 ...
+
+            read pushnum < <( script_ser_num "${elem}" )
+            pushnum="${pushnum[*]// /}"
+            ser+="${pushnum//0x/}"
+
+        elif [[ "${elem}" =~ "@" ]]; then  # hex data push: @AA10 -> 02AA10, @0A -> 5A, @81 -> 4F ...
+
+            read pushdata < <( data_pushdata "${elem/$'@'/}" )
+#            pushdata="${pushdata[*]// /}"
+            read serpush < <( script_serialize "${pushdata[@]}" )
+#            ser+="${pushdata//0x/}"
+            ser+="${serpush}"
+
+        else                               # opcode element (or INVALIDOPCODE)
+            ser+="${opcodes[${elem}]:-FF}"
+        fi
     done
 
     echo "${ser^^}"

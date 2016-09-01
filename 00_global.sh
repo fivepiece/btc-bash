@@ -89,9 +89,10 @@ export BC_ENV_ARGS="-q\
  ${sources_root}/bc/00_config.bc\
  ${sources_root}/bc/99_hash.bc\
  ${sources_root}/bc/99_bitcoin.bc\
+ ${sources_root}/bc/99_logic.bc\
  ${sources_root}/bc/01_math.bc\
  ${sources_root}/bc/02_ecmath.bc\
- ${sources_root}/bc/03_ecdsa.bc"
+ ${sources_root}/bc/03_ecdsa.bc"\
 
 source "${sources_root}/01_strings.sh"
 source "${sources_root}/02_hash.sh"

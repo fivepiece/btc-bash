@@ -87,13 +87,13 @@ do
 	echo "${upk[${j}]}"
 #	sig2core "${pkh}" "${r_val}" "${s_val}"
 	echo "${coresig}"
-	bitcoin-cli verifymessage "${uaddr[${j}]}" "${coresig}" "${msg}"
+	${clientname}-cli verifymessage "${uaddr[${j}]}" "${coresig}" "${msg}"
 
 	echo -e "\n${caddr[${j}]}"
 #	sig2core "${cpkh}" "${r_val}" "${s_val}"
 	read coresig < <( sig2core "${cpkh}" "${r_val}" "${s_val}" )
 	echo "${coresig}"
-	bitcoin-cli verifymessage "${caddr[${j}]}" "${coresig}" "${msg}"
+	${clientname}-cli verifymessage "${caddr[${j}]}" "${coresig}" "${msg}"
 	
 	read pkh < <( bc <<<"${pkh}+1" )
 	read cpkh < <( bc <<<"${cpkh}+1" )
@@ -116,13 +116,13 @@ do
 #	sig2core "${pkh}" "${r_val}" "${s_val}"
 	echo "${cpk[${j}]}"
 	echo "${coresig}"
-	bitcoin-cli verifymessage "${uaddr[${j}]}" "${coresig}" "${msg}"
+	${clientname}-cli verifymessage "${uaddr[${j}]}" "${coresig}" "${msg}"
 
 	echo -e "\n${caddr[${j}]}"
 #	sig2core "${cpkh}" "${r_val}" "${s_val}"
 	read coresig < <( sig2core "${cpkh}" "${r_val}" "${s_val}" )
 	echo "${coresig}"
-	bitcoin-cli verifymessage "${caddr[${j}]}" "${coresig}" "${msg}"
+	${clientname}-cli verifymessage "${caddr[${j}]}" "${coresig}" "${msg}"
 	
 	read pkh < <( bc <<<"${pkh}+1" )
 	read cpkh < <( bc <<<"${cpkh}+1" )

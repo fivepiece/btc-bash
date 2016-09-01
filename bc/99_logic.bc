@@ -1,5 +1,40 @@
 #!/bin/bc
 
+define void setnumsize(){
+
+    word_ = 1;
+    byte_ = 2 * word_;
+    int_ = 4 * byte_;
+    unit256_ = 8 * int_;
+}    
+
+define wordlen(n){
+
+    auto num, ans, i;
+    ans = -1;
+    i = -1;
+
+    if ( n == 0 ){
+
+        return 1;
+    }
+
+    num = n;
+
+    if ( n < 0 ){
+
+        num = (num * -1);
+    }
+
+    while (ans <= 0){
+
+        i=i+1;
+        ans=( (10^i)-(num) );
+    }
+
+    return i;
+}
+
 define void num2bitarr(n, *ret[]){
 
     auto ibit;
@@ -16,6 +51,10 @@ define void num2bitarr(n, *ret[]){
     ret[0] = ibit;
 }
 
+define bitlen(n){
+
+    return wordlen(n)*4;
+}
 
 define bwand(a, b){
 
@@ -24,8 +63,8 @@ define bwand(a, b){
     num2bitarr(a, arra[]);
     num2bitarr(b, arrb[]);
 
-    print "arra[0] = ", arra[0], "\n";
-    print "arrb[0] = ", arrb[0], "\n";
+#    print "arra[0] = ", arra[0], "\n";
+#    print "arrb[0] = ", arrb[0], "\n";
     if ( arra[0] > arrb[0] ){
 
         end = arrb[0] + 1;
@@ -36,9 +75,9 @@ define bwand(a, b){
 
     for ( i=1; i<=end; i++ ){
 
-        print "res : ", res, "\n"
-        print "arra[i] : ", arra[i], "\n";
-        print "arrb[i] : ", arrb[i], "\n";
+#        print "res : ", res, "\n"
+#        print "arra[i] : ", arra[i], "\n";
+#        print "arrb[i] : ", arrb[i], "\n";
         res += 2^(i-1) * ( arra[i] && arrb[i] );
     }
 
@@ -52,8 +91,8 @@ define bwor(a, b){
     num2bitarr(a, arra[]);
     num2bitarr(b, arrb[]);
 
-    print "arra[0] = ", arra[0], "\n";
-    print "arrb[0] = ", arrb[0], "\n";
+#    print "arra[0] = ", arra[0], "\n";
+#    print "arrb[0] = ", arrb[0], "\n";
     if ( arra[0] < arrb[0] ){
 
         end = arrb[0] + 1;
@@ -64,9 +103,9 @@ define bwor(a, b){
 
     for ( i=1; i<=end; i++ ){
 
-        print "res : ", res, "\n"
-        print "arra[i] : ", arra[i], "\n";
-        print "arrb[i] : ", arrb[i], "\n";
+#        print "res : ", res, "\n"
+#        print "arra[i] : ", arra[i], "\n";
+#        print "arrb[i] : ", arrb[i], "\n";
         res += 2^(i-1) * ( arra[i] || arrb[i] );
     }
 
@@ -96,6 +135,40 @@ define bwxor(a, b){
         print "arra[i] : ", arra[i], "\n";
         print "arrb[i] : ", arrb[i], "\n";
         res += 2^(i-1) * (( arra[i] || arrb[i] ) && !( arra[i] && arrb[i] ));
+    }
+
+    return res;
+}
+
+
+define arit_lshift(t ,n, e){
+
+    auto arrout[], res;
+
+    res = n * (2^e);
+    num2bitarr(res,arrout[]);
+
+    res = 0;
+    for ( i=1; i<=t; i++ ){
+
+        res += 2^(i-1) * arrout[i];
+    }
+
+    return res;
+}
+
+
+define log_rshift(t ,n, e){
+
+    auto arrout[], res;
+
+    res = n / (2^e);
+    num2bitarr(res,arrout[]);
+
+    res = 0;
+    for ( i=1; i<=t; i++ ){
+
+        res += 2^(i-1) * arrout[i];
     }
 
     return res;

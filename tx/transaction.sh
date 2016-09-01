@@ -244,7 +244,8 @@ tx_build ()
 
             if (( "${iswitness}" )); then
 
-                witness[${i}]="${witsigs[${j}]}"
+                # 010100 - dummy witness
+                witness[${i}]="${witsigs[${j}]:-010100}"
                 j="$(( ${j}+1 ))"
             else
                 witness[${i}]="00"
