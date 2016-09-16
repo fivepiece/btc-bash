@@ -1,4 +1,8 @@
 *.swp
+*.in
+*.json
+*.list
+*wallet.txt
 bc/checksig.sh
 bc/collatz.bc
 bc/spin.bc

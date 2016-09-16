@@ -15,7 +15,7 @@ script_ced=( "IF" "mofn" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey
 script_revc=( "HASH160" "revokehash" "EQUAL" "IF" "pubkey" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey" "ENDIF" "CHECKSIG" )
 script_htlc=( "HASH160" "DUP" "rhash" "EQUAL" "IF" "countdown" "CHECKSEQUENCEVERIFY" "2DROP" "pubkey" "ELSE" "crhash" "EQUAL" "NOTIF" "deadline"  "CHECKLOCKTIMEVERIFY" "DROP" "ENDIF" "pubkey" "ENDIF" "CHECKSIG" )
 
-minspend=1
+minspend=212.72541570
 # maxspend=21
 
 getinputs(){
@@ -379,7 +379,7 @@ mkrandouts() {
                 read -r -a data < <( pay2wpkh "${addr}" )
                 read hexscript < <( serscript "${data[*]}" )
 
-                # testnet-cli addwitnessaddress "${addr}"
+                testnet-cli addwitnessaddress "${addr}"
                 # testnet-cli importaddress "${hexscript}" "" false false
                 # echo "outscript : ${data[@]}"
                 # echo "hexscript : ${hexscript}"
@@ -424,9 +424,10 @@ mkrandouts() {
                 read script < <( serscript "${data[*]}" )
                 testnet-cli importaddress "${script}" "" false true 2>/dev/null
 
-                read witaddr < <( testnet-cli createwitnessaddress "${script}" | grep addr )
-                witaddr="${witaddr#*: \"}"
-                witaddr="${witaddr%\",}"
+                read witaddr < <( testnet-cli decodescript "${script}" | grep p2sh )
+                witaddr=${witaddr##* \"}
+                echo ${witaddr%%\"}
+                testnet-cli addwitnessaddress "${witaddr}"
 
                 read -r -a data < <( pay2wsh "${data[*]}" )
                 read script < <( serscript "${data[*]}" )
@@ -539,8 +540,9 @@ mkrandouts() {
 #    sleep 
     set +e
 #    testnet-cli sendrawtransaction "${sntx}" true
-    echo "${sntx}" > "${HOME}/Documents/thisblock"
-#    cat "${HOME}/Documents/thisblock" | testnet-cli -stdin sendrawtransaction true
+#    echo "${sntx}" > "${HOME}/Documents/thisblock"
+    echo "${sntx}" > /dev/shm/thisblock
+    cat /dev/shm/thisblock | testnet-cli -stdin sendrawtransaction
 
     echo "Remaining Balance : ${balance}"
 }

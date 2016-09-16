@@ -119,8 +119,8 @@ define bwxor(a, b){
     num2bitarr(a, arra[]);
     num2bitarr(b, arrb[]);
 
-    print "arra[0] = ", arra[0], "\n";
-    print "arrb[0] = ", arrb[0], "\n";
+#    print "arra[0] = ", arra[0], "\n";
+#    print "arrb[0] = ", arrb[0], "\n";
     if ( arra[0] < arrb[0] ){
 
         end = arrb[0] + 1;
@@ -131,9 +131,9 @@ define bwxor(a, b){
 
     for ( i=1; i<=end; i++ ){
 
-        print "res : ", res, "\n"
-        print "arra[i] : ", arra[i], "\n";
-        print "arrb[i] : ", arrb[i], "\n";
+#        print "res : ", res, "\n"
+#        print "arra[i] : ", arra[i], "\n";
+#        print "arrb[i] : ", arrb[i], "\n";
         res += 2^(i-1) * (( arra[i] || arrb[i] ) && !( arra[i] && arrb[i] ));
     }
 

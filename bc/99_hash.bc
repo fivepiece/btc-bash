@@ -95,89 +95,6 @@ define fpad(n, len){
 #    }
 #}
 
-define xor(a, b){
-
-    if (a > b){
-
-        return xorr(a, b);
-    } else {
-
-        return xorr(b, a);
-    }
-}
-
-define xorr(a, b){
-
-    auto x1, x2, wl1, wl2, noxor, doxor, arr1, arr2;
-
-    x1 = a;
-    x2 = b;
-    wl1 = wordlen(x1);
-    wl2 = wordlen(x2);
-
-    if ( wl1 == wl2 ){
-
-        arr1 = 0;
-        arr2 = 0;
-        i1 = 0;
-        i2 = 0;
-
-        tobitarr(x1);
-        i1=ibit+1;
-        deepcopy(bitarr[],i1);
-
-        for (j=0; j<i1; j++){
-
-            arr1[j]=to[j];
-        }
-/*
-        print "\nx1 : ", x1, "\n";
-        for (j=0; j<i1; j++){
-
-            print arr1[j];
-        }
-*/
-        tobitarr(x2);
-        i2=ibit+1;
-        deepcopy(bitarr[],i1);
- 
-        for (j=0; j<i2; j++){
-
-            arr2[j]=to[j];
-        }
-/*
-        print "\nx2 : ", x2, "\n";
-        for (j=0; j<i2; j++){
-
-            print arr2[j];
-        }
-
-        print "\n";
-*/
-        ans=0;
-        for (j=0; j<i2; j++){
-
-            ans = (ans + (2^j)*((arr1[j] + arr2[j]) % 2));
-#            print "\nans : ", ans, "  ";
-#            print (arr1[i1-j-1] + arr2[i1-j-1]) % 2;
-        }
-
-        for (j=i2; j<i1; j++){
-
-            ans = (ans + (2^j*arr1[j]));
-        }
-
-#        print "\n";
-        return ans;
-    } else {
-
-        noxor = (x1 / (10^wl2));
-        doxor = (x1 % (10^wl2));
-
-        return ((noxor * (10^wl2) + xor(doxor, x2)));
-    }
-}
-
 # knw : number of 0x0 words before the key
 # wsize : key size in words
 
@@ -200,8 +117,8 @@ define void hmac(knw, key, wsize){
         key=fpad(key,wsize-knw);
     }
 
-    o_key_pad=xor(key,pad1);
-    i_key_pad=xor(key,pad2);
+    o_key_pad=bwxor(key,pad1);
+    i_key_pad=bwxor(key,pad2);
 
     pad(key,wsize);
 #    print "o_key_pad : ", o_key_pad, "\ni_key_pad : ", i_key_pad, "\n";
