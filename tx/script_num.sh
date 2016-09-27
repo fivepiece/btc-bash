@@ -58,3 +58,12 @@ tx_ser_int ()
 
     echo "${serint}"
 }
+
+tx_deser_int()
+{
+    local -u int
+
+    read int < <( revbyteorder "${1}" )
+    BC_ENV_ARGS='-q' bc <<<"obase=A; ibase=16; ${int}"
+}
+

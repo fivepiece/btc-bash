@@ -152,7 +152,7 @@ tx_mkin_serialize ()
     read serscript < <( script_serialize "${asmscript}" )
     read scriptsize < <( data_compsize "${#serscript}" )
 
-    echo "${prevtx}${serpidx}${scriptsize}${serscript}${serseq}"
+    echo -e "${prevtx}${serpidx}\n${scriptsize}${serscript}\n${serseq}"
 }
 
 
@@ -261,7 +261,7 @@ tx_build ()
         echo "${swmarker}"
         echo "${swflag}"
     fi
-    data_compsize "$(( ${#inputs[@]}*2 ))"
+    data_compsize "$(( (${#inputs[@]}*2)/3 ))"
     printf "%s\n" ${inputs[@]}
     data_compsize "$(( ${#outputs[@]}*2 ))"
     printf "%s\n" ${outputs[@]}

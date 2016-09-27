@@ -15,7 +15,7 @@ script_ced=( "IF" "mofn" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey
 script_revc=( "HASH160" "revokehash" "EQUAL" "IF" "pubkey" "ELSE" "countdown" "CHECKSEQUENCEVERIFY" "DROP" "pubkey" "ENDIF" "CHECKSIG" )
 script_htlc=( "HASH160" "DUP" "rhash" "EQUAL" "IF" "countdown" "CHECKSEQUENCEVERIFY" "2DROP" "pubkey" "ELSE" "crhash" "EQUAL" "NOTIF" "deadline"  "CHECKLOCKTIMEVERIFY" "DROP" "ENDIF" "pubkey" "ENDIF" "CHECKSIG" )
 
-minspend=212.72541570
+minspend=0.0498
 # maxspend=21
 
 getinputs(){
@@ -380,7 +380,7 @@ mkrandouts() {
                 read hexscript < <( serscript "${data[*]}" )
 
                 testnet-cli addwitnessaddress "${addr}"
-                # testnet-cli importaddress "${hexscript}" "" false false
+                testnet-cli importaddress "${hexscript}" "" false false
                 # echo "outscript : ${data[@]}"
                 # echo "hexscript : ${hexscript}"
                 # echo -e "--------------------\n"
@@ -394,8 +394,10 @@ mkrandouts() {
                 local n
 
                 pubkeys=()
-                n="$(( (${RANDOM} % 4) + 2 ))"
-                m="$(( (${RANDOM} % ${n}) + 1 ))"
+#                n=16
+                n="$(( (${RANDOM} % 15) +1 ))"
+#                m=n
+                m="$(( (${RANDOM} % ${n}) +1 ))"
                 # echo "req sigs  : ${m}"
                 # echo "num keys  : ${n}"
 
@@ -427,7 +429,7 @@ mkrandouts() {
                 read witaddr < <( testnet-cli decodescript "${script}" | grep p2sh )
                 witaddr=${witaddr##* \"}
                 echo ${witaddr%%\"}
-                testnet-cli addwitnessaddress "${witaddr}"
+                # testnet-cli addwitnessaddress "${witaddr}"
 
                 read -r -a data < <( pay2wsh "${data[*]}" )
                 read script < <( serscript "${data[*]}" )

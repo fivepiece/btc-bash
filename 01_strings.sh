@@ -71,3 +71,8 @@ revbyteorder() {
     revstr=${revstr^^}
     printf "${revstr// /}"
 }
+
+decho()
+{
+    if [[ ${__debug_btcbash} == 1 ]]; then echo -e "$@" >&2; fi
+}
