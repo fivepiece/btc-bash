@@ -152,7 +152,7 @@ tx_mkin_serialize ()
     read serscript < <( script_serialize "${asmscript}" )
     read scriptsize < <( data_compsize "${#serscript}" )
 
-    echo -e "${prevtx}${serpidx}\n${scriptsize}${serscript}\n${serseq}"
+    echo -e "${prevtx}${serpidx}${scriptsize}${serscript}${serseq}"
 }
 
 
@@ -161,7 +161,7 @@ tx_input_script ()
     local -u script
 
     script="${1:72}"
-    script="${script::-8}"
+    script="${script:-8}"
 
     echo "${script}"
 }
@@ -181,14 +181,22 @@ tx_bip141_iswitprog ()
         echo "0"
     fi
 
-    read pushcode < <( BC_ENV_ARGS='-q' bc <<<"${scriptpk:2:2}" )
+    if [[ "${scriptpk:2:2}" =~ [${op_num[@]}] ]]; then
 
-    if (( "${pushcode}" < 0 )) || (( "${pushcode}" > 16 )); then
+        echo "1"
+    else
 
         echo "0"
     fi
 
-    echo "1"
+#    read pushcode < <( BC_ENV_ARGS='-q' bc <<<"${scriptpk:2:2}" )
+#
+#    if (( "${pushcode}" < 0 )) || (( "${pushcode}" > 16 )); then
+#
+#        echo "0"
+#    fi
+#
+#    echo "1"
 }
 
 
@@ -261,7 +269,7 @@ tx_build ()
         echo "${swmarker}"
         echo "${swflag}"
     fi
-    data_compsize "$(( (${#inputs[@]}*2)/3 ))"
+    data_compsize "$(( (${#inputs[@]}*2) ))"
     printf "%s\n" ${inputs[@]}
     data_compsize "$(( ${#outputs[@]}*2 ))"
     printf "%s\n" ${outputs[@]}

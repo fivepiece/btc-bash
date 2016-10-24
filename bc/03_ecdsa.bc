@@ -27,21 +27,26 @@ define getk(r, s, z, d, n){
 
 #    kval = mod((invmod(s,n) * mod((z+(r*d)),n)),n);
 #    print "\n# K : ", kval, "\n";
-    return mod((invmod(s,n) * mod((z+(r*d)),n)),n);
+    return mod((invmod(-s,n) * mod((z+(r*d)),n)),n);
 }
 
 define getz(r, s, k, d, n){
 
 #    zval = mod((mod(k*s,n) - mod(r*d,n)),n);
 #    print "\n# Z : ", zval, "\n";
-    return mod((mod(k*s,n) - mod(r*d,n)),n);
+    return mod((-mod(k*s,n) + mod(-r*d,n)),n);
 }
 
 define getd(r, s, k, z, n){
 
 #    dval = mod(mod((s*k)-z,n) * invmod(r,n),n);
 #    print "\n# D : ", dval, "\n";
-    return mod(mod((s*k)-z,n) * invmod(r,n),n);
+    return mod(mod((-s*k)-z,n) * invmod(r,n),n);
+}
+
+define getr(k, s, z, d, n){
+
+    return mod(invmod(d,n) * mod((-k*s) - z,n),n);
 }
 
 define sign(x, k, z, d, n){

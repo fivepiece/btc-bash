@@ -40,6 +40,23 @@ set_network_versions() {
             export clientname="regtest"
             ;;
         
+        mastcoin)
+            export privkeyVer="EF"
+            export p2pkhVer="6F"
+            export p2shVer="C4"
+            export xpubVer="043587CF"
+            export xprvVer="04358394"
+            export clientname="mastcoin"
+            ;;
+        
+        unlimited)
+            export privkeyVer="EF"
+            export p2pkhVer="6F"
+            export p2shVer="C4"
+            export xpubVer="043587CF"
+            export xprvVer="04358394"
+            export clientname="unlimited"
+            ;;
     esac
 }
 

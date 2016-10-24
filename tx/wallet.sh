@@ -92,7 +92,7 @@ key_addr2hash160 ()
 key_hash1602addr () 
 { 
     local -u checksum;
-    read checksum < <( hash256 "${1}" );
+    read checksum < <( hash256 "${p2pkhVer}${1}" );
     base58enc "${p2pkhVer}${1}${checksum:0:8}";
     echo
 }

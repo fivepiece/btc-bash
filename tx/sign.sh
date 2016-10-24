@@ -36,6 +36,14 @@ tx_deser_compsize()
 
 tx_parse()
 {
+    if [[ "${1}" == "" ]]
+    then
+        local -u tx
+        read tx
+        tx_parse "${tx}"
+        return
+    fi
+
     local -u version tmpbytes tmpval swmarker swflag wit_size
     local -i ptr=0 segwit_tx=0 num_inputs num_outputs
     local -au txid_index in_script_size in_script in_seq
@@ -49,16 +57,26 @@ tx_parse()
     decho "version : ${version}\nptr : ${ptr}"
     if [[ "${tmpbytes}" == "00" ]]; then
 
-        segwit_tx="1"
         swmarker="00"
-        swflag="${1:12:2}"
-        ptr="$(( ${ptr}+4 ))"
-        
+        swflag="${1:10:2}"
+
         if [[ "${swflag}" == "01" ]]; then
 
-            segwit_tx="1"
+            ptr="$(( ${ptr}+4 ))" 
+            tmpbytes="${1:${ptr}:2}"
+
+            if [[ "${tmpbytes}" == "00" ]]; then
+
+                ptr="$(( ${ptr}-4 ))"
+                segwit_tx=0
+                swmarker=
+                swflag=
+            fi
+            segwit_tx=1
         else
-            echo "unknown witness flag ${swlag}" >&2
+            segwit_tx=0
+            swmarker=
+            swflag=
         fi
     fi
     decho "segwit_tx : ${segwit_tx}\nswmarker : ${swmarker}\nswflag : ${swflag}\nptr : ${ptr}"
@@ -69,6 +87,25 @@ tx_parse()
     decho "num_inputs : $(( ${num_inputs}/2 ))\nptr : ${ptr}"
 
     for (( i=0; i<$(( ${num_inputs}/2 )); i++ )); do
+
+        if [[ "${1:${ptr}:1}" == "" ]]; then
+
+            if (( ${segwit_tx} == 1 )); then
+
+                segwit_tx=0
+                ptr=8
+                read tmpval < <( tx_compsize_len "${1:${ptr}:2}" )
+                read num_inputs < <( tx_deser_compsize "${1:${ptr}:${tmpval}}" )
+                ptr="$(( ${ptr}+${tmpval} ))"
+                i=0
+                decho "-------------------------------------------------"
+                decho "num_inputs : $(( ${num_inputs}/2 ))\nptr : ${ptr}"
+                continue
+            else
+                decho "PARSE_TX FAILED"
+                return
+            fi
+        fi
 
         txid_index[$i]="${1:${ptr}:72}"
         ptr="$(( ${ptr}+72 ))"
@@ -96,6 +133,12 @@ tx_parse()
 
     for (( i=0; i<$(( ${num_outputs}/2 )); i++ )); do
 
+        if [[ "${1:${ptr}:1}" == "" ]]; then
+
+            decho "PARSE_TX FAILED"
+            return
+        fi
+
         out_amount="${1:${ptr}:16}"
         ptr="$(( ${ptr}+16 ))"
         decho "out_amount : ${out_amount}\nptr : ${ptr}"
@@ -112,6 +155,12 @@ tx_parse()
     done
 
     if (( ${segwit_tx} == 1 )); then
+
+        if [[ "${1:${ptr}:1}" == "" ]]; then
+
+            decho "PARSE_TX FAILED"
+            return
+        fi
 
         for (( i=0; i<$(( ${num_inputs}/2 )); i++ )); do
 
@@ -143,4 +192,11 @@ tx_parse()
 
     nlocktime="${1:${ptr}:8}"
     decho "nlocktime : ${nlocktime}"
+    ptr="$(( ${ptr}+8 ))"
+    
+    if [[ "${1:${ptr}:1}" != "" ]]; then
+
+        decho "PARSE_TX FAILED"
+        return
+    fi
 }
