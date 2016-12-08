@@ -394,8 +394,8 @@ mkrandouts() {
                 local n
 
                 pubkeys=()
-                n=15
-#                n="$(( (${RANDOM} % 4) + 4 ))"
+                n=7
+#                n="$(( (${RANDOM} % 4) + 1 ))"
 #                m="$(( ${n} -1 ))"
                 m="${n}"
 #                m="$(( (${RANDOM} % ${n}) +1 ))"
@@ -484,7 +484,7 @@ mkrandouts() {
 #    fund="${clientname}-cli fundrawtransaction ${newtx} | grep -- \"hex\|fee\""
 #    echo "funding..."
     echo "${newtx}" > "/dev/shm/thisfund" 
-    json_fundrawtransaction "${newtx}" "$(bank-cli getnewaddress)" > /dev/shm/thisfund.curl
+    json_fundrawtransaction "${newtx}" "$(bank-cli getnewaddress | bank-cli -stdin addwitnessaddress)" > /dev/shm/thisfund.curl
 
 #    fund=" echo "${newtx}" | ${clientname}-cli -stdin fundrawtransaction '{\"lockUnspents\":true}' | grep -- \"hex\|fee\"" 
 #    echo "funded?"
@@ -641,7 +641,7 @@ genoutaddrs() {
 
     read minspend < <(BC_ENV_ARGS='-q' bc <<<\
         "ibase=A; obase=A; scale=8; \
-        ((${balance}-1)/${1})*${3}/1")
+        ((${balance}-5)/${1})*${3}/1")
     echo ${minspend}
 
 
@@ -652,7 +652,7 @@ genoutaddrs() {
     while (( "${unspent}" > "0" )) && \
         [[ "${balance}" > "0" ]]
     do
-        if (( ${k} % 30 == 0 ))
+        if (( ${k} % 4000 == 0 ))
         then
             lastunspent="${unspent}"
             lastbalance="${balance}"
@@ -665,6 +665,7 @@ genoutaddrs() {
             fi
         fi
         mkrandouts "${1}" "${2}"
+#        mkrandouts "$((${RANDOM} % 3 + 1))" "${2}"
         k=$(( ${k}+1 ))
         break
     done

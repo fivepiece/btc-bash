@@ -142,9 +142,15 @@ define void ecmulcurve(d, gx, gy, n, p){
 
 define void ecmul(d){
 
+    auto none;
     ecmulcurve(d,ggx,ggy,nn,pp);
 
-    print "\n# ecmul\n# X : ", tx, "\n# Y : ", ty, "\n";
+    print "\n# ecmul\n# X : ";
+    pad(tx,40);
+    print "# Y : ";
+    pad(ty,40);
+    print "\n";
+    none = compresspoint(tx,ty);
 }
 
 define void compresspoint(x,y){

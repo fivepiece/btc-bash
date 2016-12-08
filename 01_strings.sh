@@ -69,6 +69,35 @@ revbyteorder() {
 
     revstr=${revstr[@]//$'\n'/}
     revstr=${revstr^^}
+    printf "${revstr// /}\n"
+}
+
+revbytes() {
+
+    local -u hexstr 
+    local -i chunk
+    if [[ "${1}" == "" ]] 
+    then
+        read hexstr 
+        chunk=2 
+    else
+        hexstr="${1}" 
+        chunk="${2}"
+    fi
+
+    if (( ${#hexstr} % ${chunk} == 1 )) 
+    then
+        hexstr="0${hexstr}" 
+    fi
+
+    local -a revstr 
+    for (( i=$(( ${#hexstr}-${chunk} )); i>=0; i-- )) 
+    do
+        revstr+=( ${hexstr:$(( i*${chunk} )):${chunk}} )
+    done
+
+    revstr=${revstr[@]//$'\n'/} 
+    revstr=${revstr^^}
     printf "${revstr// /}"
 }
 

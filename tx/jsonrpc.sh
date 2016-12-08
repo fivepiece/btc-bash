@@ -36,7 +36,7 @@ json_wrap_make()
 
 rpc_curl()
 {
-    curl -# --user test_rpcuser_btc:test_rpcpass_btc --data-binary @"${1}" -H 'content-type: text/plain;' http://127.3.0.1:18332/
+    curl -# --user test_rpcuser_btc:test_rpcpass_btc --data-binary @"${1}" -H 'content-type: text/plain;' http://127.3.0.2:18332/
 }
 
 json_fundrawtransaction()
