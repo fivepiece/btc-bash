@@ -63,51 +63,88 @@ lpad()
     IFS="$OIFS"
 }
 
-echo '#/bin/bash'
-echo -e "\ndeclare -A v16to2_256"
+gen_seed_vectors()
+{
+    local -Au tseeds tleafs
+    tseeds[02A40C85B6F28DA08DFDBE0926C53FAB2DE6D28C10301F8F7C4073D5E42E3148]=0000000000000000000000000000000000000000000000000000000000000000
+    tseeds[7CC854B54E3E0DCDB010D7A3FEE464A9687BE6E8DB3BE6854C475621E007A5DC]=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    tseeds[56F4008FB007CA9ACF0E15B054D5C9FD12EE06CEA347914DDBAED70D1C13A528]=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    tseeds[9015DAAEB06DBA4CCC05B91B2F73BD54405F2BE9F217FBACD3C5AC2E62327D31]=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    tseeds[915C75942A26BB3A433A8CE2CB0427C29EC6C1775CFC78328B57F6BA7BFEAA9C]=0101010101010101010101010101010101010101010101010101010101010101
 
-for ((i=0; i<${#val32s[@]}; i++)); do
-    while read val322; do
-        read val32i < <( BC_ENV_ARGS='-q' bc <<<" obase=16; ibase=2; ${val322}; " )
-        read val32i < <( lpad ${val32i} 64 )
-        read val322 < <( lpad ${val322} 256 )
-        echo "v16to2_256[${val32i}]=${val322}"
-    done < <( BC_ENV_ARGS='-q' bc <<<"obase=2; ibase=16; j=-8; k=8; if ($i==0) { j=0; k=10; }; if ($i==11) { j=-10; k=0; }; for (i=j; i<=k; i++) { ${val32s[$i]}+i }; " )
+    tleafs[02A40C85B6F28DA08DFDBE0926C53FAB2DE6D28C10301F8F7C4073D5E42E3148]=FFFFFFFFFFFF
+    tleafs[7CC854B54E3E0DCDB010D7A3FEE464A9687BE6E8DB3BE6854C475621E007A5DC]=FFFFFFFFFFFF
+    tleafs[56F4008FB007CA9ACF0E15B054D5C9FD12EE06CEA347914DDBAED70D1C13A528]=AAAAAAAAAAA
+    tleafs[9015DAAEB06DBA4CCC05B91B2F73BD54405F2BE9F217FBACD3C5AC2E62327D31]=555555555555
+    tleafs[915C75942A26BB3A433A8CE2CB0427C29EC6C1775CFC78328B57F6BA7BFEAA9C]=1
+
+    #local leaf zero=0 one=1 fives=555555555555 aaa=AAAAAAAAAAA fff=FFFFFFFFFFFF
+    echo "declare -A vseeds vleafs"
+    for i in ${!tseeds[@]}; do
+        echo "vseeds[${i}]=${tseeds[$i]}"
+    done
     echo
-done
+    for i in ${!tleafs[@]}; do
+        echo "vleafs[${i}]=${tleafs[$i]}"
+    done
+    unset tleafs tseeds
+}
 
-echo -e "\ndeclare -A v16to2_48"
+gen_bconv_vectors()
+{
 
-for ((i=0; i<${#val6s[@]}; i++)); do
-    while read val62; do
-        read val6i < <( BC_ENV_ARGS='-q' bc <<<" obase=16; ibase=2; ${val62}; " )
-        read val6i < <( lpad ${val6i} 12 )
-        read val62 < <( lpad ${val62} 48 )
-        echo "v16to2_48[${val6i}]=${val62}"
-    done < <( BC_ENV_ARGS='-q' bc <<<"obase=2; ibase=16; j=-8; k=8; if ($i==0) { j=0; k=10; }; if ($i==11) { j=-10; k=0; }; for (i=j; i<=k; i++) { ${val6s[$i]}+i }; " )
-    echo
-done
+    echo -e "\ndeclare -A v16to2_256"
 
-echo -e "\ndeclare -A v2to16_256"
+    for ((i=0; i<${#val32s[@]}; i++)); do
+        while read val322; do
+            read val32i < <( BC_ENV_ARGS='-q' bc <<<" obase=16; ibase=2; ${val322}; " )
+            read val32i < <( lpad ${val32i} 64 )
+            read val322 < <( lpad ${val322} 256 )
+            echo "v16to2_256[${val32i}]=${val322}"
+        done < <( BC_ENV_ARGS='-q' bc <<<"obase=2; ibase=16; j=-8; k=8; if ($i==0) { j=0; k=10; }; if ($i==11) { j=-10; k=0; }; for (i=j; i<=k; i++) { ${val32s[$i]}+i }; " )
+        echo
+    done
 
-for ((i=0; i<${#val256s[@]}; i++)); do
-    while read val256x; do
-        read val256i < <( BC_ENV_ARGS='-q' bc <<<" obase=2; ibase=16; ${val256x}; " )
-        read val256i < <( lpad ${val256i} 256 )
-        read val256x < <( lpad ${val256x} 64 )
-        echo "v2to16_256[${val256i}]=${val256x}"
-    done < <( BC_ENV_ARGS='-q' bc <<<"obase=16; ibase=2; j=-1000; k=1000; if ($i==0) { j=0; k=10000; }; if ($i==11) { j=-10000; k=0; }; for (i=j; i<=k; i++) { ${val256s[$i]}+i }; " )
-    echo
-done
+    echo -e "\ndeclare -A v16to2_48"
 
-echo -e "\ndeclare -A v2to16_48"
+    for ((i=0; i<${#val6s[@]}; i++)); do
+        while read val62; do
+            read val6i < <( BC_ENV_ARGS='-q' bc <<<" obase=16; ibase=2; ${val62}; " )
+            read val6i < <( lpad ${val6i} 12 )
+            read val62 < <( lpad ${val62} 48 )
+            echo "v16to2_48[${val6i}]=${val62}"
+        done < <( BC_ENV_ARGS='-q' bc <<<"obase=2; ibase=16; j=-8; k=8; if ($i==0) { j=0; k=10; }; if ($i==11) { j=-10; k=0; }; for (i=j; i<=k; i++) { ${val6s[$i]}+i }; " )
+        echo
+    done
 
-for ((i=0; i<${#val48s[@]}; i++)); do
-    while read val48x; do
-        read val48i < <( BC_ENV_ARGS='-q' bc <<<" obase=2; ibase=16; ${val48x}; " )
-        read val48i < <( lpad ${val48i} 48 )
-        read val48x < <( lpad ${val48x} 12 )
-        echo "v2to16_48[${val48i}]=${val48x}"
-    done < <( BC_ENV_ARGS='-q' bc <<<"obase=16; ibase=2; j=-1000; k=1000; if ($i==0) { j=0; k=10000; }; if ($i==11) { j=-10000; k=0; }; for (i=j; i<=k; i++) { ${val48s[$i]}+i }; " )
-    echo
-done
+    echo -e "\ndeclare -A v2to16_256"
+
+    for ((i=0; i<${#val256s[@]}; i++)); do
+        while read val256x; do
+            read val256i < <( BC_ENV_ARGS='-q' bc <<<" obase=2; ibase=16; ${val256x}; " )
+            read val256i < <( lpad ${val256i} 256 )
+            read val256x < <( lpad ${val256x} 64 )
+            echo "v2to16_256[${val256i}]=${val256x}"
+        done < <( BC_ENV_ARGS='-q' bc <<<"obase=16; ibase=2; j=-1000; k=1000; if ($i==0) { j=0; k=10000; }; if ($i==11) { j=-10000; k=0; }; for (i=j; i<=k; i++) { ${val256s[$i]}+i }; " )
+        echo
+    done
+
+    echo -e "\ndeclare -A v2to16_48"
+
+    for ((i=0; i<${#val48s[@]}; i++)); do
+        while read val48x; do
+            read val48i < <( BC_ENV_ARGS='-q' bc <<<" obase=2; ibase=16; ${val48x}; " )
+            read val48i < <( lpad ${val48i} 48 )
+            read val48x < <( lpad ${val48x} 12 )
+            echo "v2to16_48[${val48i}]=${val48x}"
+        done < <( BC_ENV_ARGS='-q' bc <<<"obase=16; ibase=2; j=-1000; k=1000; if ($i==0) { j=0; k=10000; }; if ($i==11) { j=-10000; k=0; }; for (i=j; i<=k; i++) { ${val48s[$i]}+i }; " )
+        echo
+    done
+}
+
+gen_vectors()
+{
+    echo '#/bin/bash'
+    #gen_bconv_vectors
+    gen_seed_vectors
+}

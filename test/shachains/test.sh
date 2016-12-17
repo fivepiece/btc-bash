@@ -1,6 +1,6 @@
 #!/bin/bash
 
-unset i v16 v256 v16to2_256 v16to2_48
+unset i v16 v256 v16to2_256 v16to2_48 vseeds vleafs
 
 #./gen_vectors.sh > vectors.sh
 source ./vectors.sh
@@ -44,5 +44,16 @@ t2to16()
     done
 }
 
+tgenerate_from_seed()
+{
+    for i in ${!vseeds[@]}; do
+
+        vseed="${vseeds[$i]}"
+        vidx="${vleafs[$i]}"
+        read vleaf < <( hc_generate_from_seed "${vseeds[$i]}" "${vleafs[$i]}" )
+        [[ "${vseeds[${vleaf}]}" == "${vseeds[$i]}" ]] && [[ "${vleafs[${vleaf}]}" == "${vleafs[$i]}" ]] || \
+            echo "tgenerate_fromseed, [[ "${vseeds[${vleaf}]}" != "${vseeds[$i]}" ]] || [[ "${vleafs[${vleaf}]}" != "${vleafs[$i]}" ]]"
+    done
+}
 #unset i i16 v16 v16to2_256 v16to2_48
 #rm ./vectors.sh
